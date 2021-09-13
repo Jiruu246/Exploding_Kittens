@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using ExplodingKittenLib;
 
 namespace Server
 {
     class GameModerator
     {
-        private string prom; //temp 
         private ServerNetwork _network;
         private PlayerGroup _playerGroup;
 
@@ -16,20 +15,51 @@ namespace Server
             _network = network;
             _playerGroup = players;
         }
-        public void Update()
+
+        public void Execute(object data)
         {
-            prom = Console.ReadLine();
-
-            List<string> command = new List<string>(prom.Split(' '));
-
-            switch (command[0])
+            switch (data.GetType().Name)
             {
-                case "close":
-                    _network.Close();
+                case "Int32":
+                    Console.WriteLine((int)data);
                     break;
-                case "send":
-                    _network.SendMulti(command[1]);
+                case "String":
+                    Console.WriteLine((string)data);
                     break;
+            }
+        }
+
+        public void Listen()
+        {
+            while (true)
+            {
+                if (!_playerGroup.MaxPlayer())
+                {
+                    Player player = _network.Listen();
+                    if (player != null)
+                    {
+                        Thread recieve = new Thread(() => { Receive(player); });
+                        recieve.IsBackground = true;
+                        recieve.Start();
+                    }
+                }
+
+            }
+        }
+
+        public void Receive(Player player)
+        {
+            try
+            {
+                while (true)
+                {
+                    Execute(_network.GetData(player.ClientSK));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                _network.CloseClient(player.ClientSK);
             }
         }
     }

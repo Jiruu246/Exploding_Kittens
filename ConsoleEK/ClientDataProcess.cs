@@ -34,8 +34,7 @@ namespace Client
 
         public bool Connect()
         {
-            bool conn;
-            conn = _network.Connect();
+            bool conn = _network.Connect();
 
             Thread listen = new Thread(Receive);
             listen.IsBackground = true;
