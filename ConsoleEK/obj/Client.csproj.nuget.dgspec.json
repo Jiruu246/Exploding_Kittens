@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "restore": {
+    "E:\\tempcode\\C#\\ConsoleEK\\ConsoleEK\\Client.csproj": {}
+  },
+  "projects": {
+    "E:\\tempcode\\C#\\ConsoleEK\\ConsoleEK\\Client.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\tempcode\\C#\\ConsoleEK\\ConsoleEK\\Client.csproj",
+        "projectName": "Client",
+        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ConsoleEK\\Client.csproj",
+        "packagesPath": "C:\\Users\\Thinh Nguyen\\.nuget\\packages\\",
+        "outputPath": "E:\\tempcode\\C#\\ConsoleEK\\ConsoleEK\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Thinh Nguyen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
+            "projectReferences": {
+              "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj": {
+                "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj": {
+      "restore": {
+        "projectUniqueName": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj",
+        "projectName": "ExplodingKittenLib",
+        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj"
+      },
+      "frameworks": {
+        "net472": {}
+      }
+    }
+  }
+}

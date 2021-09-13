@@ -1,0 +1,5 @@
+E:\tempcode\C#\ConsoleEK\ExplodingKittenLib\bin\Debug\ExplodingKittenLib.dll
+E:\tempcode\C#\ConsoleEK\ExplodingKittenLib\bin\Debug\ExplodingKittenLib.pdb
+E:\tempcode\C#\ConsoleEK\ExplodingKittenLib\obj\Debug\ExplodingKittenLib.csproj.CoreCompileInputs.cache
+E:\tempcode\C#\ConsoleEK\ExplodingKittenLib\obj\Debug\ExplodingKittenLib.dll
+E:\tempcode\C#\ConsoleEK\ExplodingKittenLib\obj\Debug\ExplodingKittenLib.pdb

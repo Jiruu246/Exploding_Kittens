@@ -1,0 +1,17 @@
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.GeneratedMSBuildEditorConfig.editorconfig
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfoInputs.cache
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.AssemblyInfo.cs
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.csproj.CoreCompileInputs.cache
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.exe
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.deps.json
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.json
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.runtimeconfig.dev.json
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.dll
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\Server.pdb
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.dll
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.pdb
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.genruntimeconfig.cache
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.csproj.AssemblyReference.cache
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\ExplodingKittenLib.dll
+E:\tempcode\C#\ConsoleEK\Server\bin\Debug\netcoreapp3.1\ExplodingKittenLib.pdb
+E:\tempcode\C#\ConsoleEK\Server\obj\Debug\netcoreapp3.1\Server.csproj.CopyComplete
