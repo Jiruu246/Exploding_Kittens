@@ -1,47 +1,43 @@
 ﻿using System;
-using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using ExplodingKittenLib;
 
 namespace Server
 {
-    class ServerNetwork
+    class ServerNetwork : Network
     {
         private IPEndPoint _ClientIP;
         private Socket _Server;
-        private PlayerGroup _players;
 
-        public ServerNetwork(PlayerGroup players)
+        public ServerNetwork(PlayerGroup players) : base()
         {
-            _players = players;
             GenerateAddress();
             Connect();
         }
 
-        private void GenerateAddress()
+        protected override void GenerateAddress()
         {
             _ClientIP = new IPEndPoint(IPAddress.Any, 5555);
             _Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
         }
 
-        private void Connect()
+        public override bool Connect()
         {
             try
             {
                 _Server.Bind(_ClientIP);
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 Console.WriteLine("cannot bind IP address");
-                return;
+                return false;
             }
         }
         //Thread Listen = new Thread(() => {   // create thread for listen purpose
-        public Player Listen()
+        public Socket Listen()
         {
             try
             {
@@ -51,11 +47,12 @@ namespace Server
                     //{
                 _Server.Listen(1);
                 Socket client = _Server.Accept();
-                Player p = _players.AddPlayer(client);
+                return client;
 
-                SendSingle(client, p.Position); // send somthing to confirm connection
-
-                return p;
+                //
+                //Player p = _players.AddPlayer(client); // can put this out side !!!!!!!!!
+                //SendSingle(client, p.Position); // send somthing to confirm connection
+                //return p;
                         //Thread recieve = new Thread(Receive); // create thread for client
                         //recieve.IsBackground = true;
                         //recieve.Start(client);
@@ -75,7 +72,7 @@ namespace Server
             //Listen.Start();
         //}
 
-        public void Close()
+        public override void Close()
         {
             _Server.Close();
         }
@@ -85,13 +82,12 @@ namespace Server
             client.Send(Serialize(data));
         }
 
-        public void SendMulti(object data)
+        public void SendMulti(object data, PlayerGroup players)
         {
-            foreach(Player player in _players.PlayerList)
+            foreach(Player player in players.PlayerList)
             {
                 SendSingle(player.ClientSK, data);
                 Console.WriteLine("finish sending2");
-
             }
         }
 
@@ -113,7 +109,7 @@ namespace Server
             }
         }*/
 
-        private byte[] Serialize(object obj)
+        /*private byte[] Serialize(object obj)
         {
             MemoryStream stream = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
@@ -133,19 +129,19 @@ namespace Server
 
         public object GetData(Socket client)
         {
-            byte[] data = new byte[1024 * 5000];
+            byte[] data = new byte[2048];
             client.Receive(data);
             object message = (object)Deserialize(data);
             return message;
-        }
+        }*/
 
-        public void CloseClient(Socket client)
+        public void CloseClient(Socket client, PlayerGroup players)
         {
-            for (int i = 0; i < _players.PlayerList.Count; i++)
+            for (int i = 0; i < players.PlayerList.Count; i++) // singleton?? passing the list
             {
-                Player player = _players.PlayerList[i];
+                Player player = players.PlayerList[i];
                 if (player.ClientSK == client)
-                    _players.RemovePlayer(player);
+                    players.RemovePlayer(player);
             }
             client.Close();
         }

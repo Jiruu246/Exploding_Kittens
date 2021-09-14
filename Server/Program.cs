@@ -36,7 +36,7 @@ namespace Server
                         network.Close();
                         break;
                     case "send":
-                        network.SendMulti(command[1]);
+                        network.SendMulti(command[1], players);
                         break;
                 }
 

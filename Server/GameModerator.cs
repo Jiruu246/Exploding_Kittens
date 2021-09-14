@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
 
@@ -35,12 +36,18 @@ namespace Server
             {
                 if (!_playerGroup.MaxPlayer())
                 {
-                    Player player = _network.Listen();
-                    if (player != null)
+                    Socket Client = _network.Listen();
+
+                    if (Client != null)
                     {
+                        Player player = _playerGroup.AddPlayer(Client);
+
+                        _network.SendSingle(Client, player.Position); // send the player position
+
                         Thread recieve = new Thread(() => { Receive(player); });
                         recieve.IsBackground = true;
                         recieve.Start();
+
                     }
                 }
 
@@ -59,7 +66,16 @@ namespace Server
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                _network.CloseClient(player.ClientSK);
+                _network.CloseClient(player.ClientSK, _playerGroup);
+                ResendPosition(); // when someone disconnect, resend the position
+            }
+        }
+
+        public void ResendPosition()
+        {
+            foreach (Player p in _playerGroup.PlayerList)
+            {
+                _network.SendSingle(p.ClientSK, p.Position);
             }
         }
     }

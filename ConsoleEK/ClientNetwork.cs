@@ -1,32 +1,32 @@
 ﻿using System;
-using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using ExplodingKittenLib;
 
 namespace Client
 {
-    public class ClientNetwork
+    public class ClientNetwork : Network
     {
         private IPEndPoint _ServerIP;
-        private Player _player;
+        private Socket _client;
 
-        public ClientNetwork(Player player)
+        public ClientNetwork() : base()
         {
-            _player = player;
-            _ServerIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
-            _player.ClientSK = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+            GenerateAddress();
         }
 
-        public bool Connect()
+        protected override void GenerateAddress()
+        {
+            _ServerIP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5555);
+            _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+        }
+
+        public override bool Connect()
         {
 
             try
             {
-                _player.ClientSK.Connect(_ServerIP);
-                //GetData();
+                _client.Connect(_ServerIP);
                 return true;
             }
             catch (Exception e)
@@ -41,9 +41,9 @@ namespace Client
             //listen.Start();
         }
 
-        public void Close()
+        public override void Close()
         {
-            _player.ClientSK.Close();
+            _client.Close();
         }
 
         public void Send(object data)
@@ -51,13 +51,21 @@ namespace Client
 
             try
             {
-                if (data as string != null) // test for sending string
-                    _player.ClientSK.Send(Serialize(data));
+                //if (data as string != null) // test for sending string
+                    _client.Send(Serialize(data));
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 Console.WriteLine("Cant send data");
+            }
+        }
+
+        public Socket Socket
+        {
+            get
+            {
+                return _client;
             }
         }
 
@@ -76,7 +84,7 @@ namespace Client
         //    }
         //}
 
-        private byte[] Serialize(object obj)
+        /*private byte[] Serialize(object obj)
         {
             MemoryStream stream = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
@@ -95,13 +103,13 @@ namespace Client
 
         }
 
-        public object GetData()
+        public object GetData(Socket client)
         {
-            byte[] data = new byte[1024 * 5000];
-            _player.ClientSK.Receive(data);
+            byte[] data = new byte[2048];
+            client.Receive(data);
             object message = (object)Deserialize(data);
             Console.WriteLine(message.GetType().Name);
             return message;
-        }
+        }*/
     }
 }

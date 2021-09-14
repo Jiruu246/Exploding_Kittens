@@ -44,6 +44,7 @@
     <Compile Include="Cards\DefuseCard.cs" />
     <Compile Include="Cards\_Card.cs" />
     <Compile Include="Deck.cs" />
+    <Compile Include="Network.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

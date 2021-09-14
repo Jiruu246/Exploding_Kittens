@@ -12,7 +12,7 @@ namespace Client
 
         public ClientDataProcess(Player p, Deck d)
         {
-            _network = new ClientNetwork(p);
+            _network = new ClientNetwork();
             _player = p;
             _deck = d;
         }
@@ -36,7 +36,9 @@ namespace Client
         {
             bool conn = _network.Connect();
 
-            Thread listen = new Thread(Receive);
+            _player.ClientSK = _network.Socket; // save the socket to the player object
+
+            Thread listen = new Thread(Receive); // when connect establish a listen thread immidiately
             listen.IsBackground = true;
             listen.Start();
 
@@ -59,7 +61,7 @@ namespace Client
             {
                 while (true)
                 {
-                    Execute(_network.GetData());
+                    Execute(_network.GetData(_player.ClientSK));
                 }
             }
             catch

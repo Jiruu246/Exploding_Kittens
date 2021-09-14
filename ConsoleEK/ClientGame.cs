@@ -38,6 +38,9 @@ namespace Client
                 case "connect":
                     _ready = _process.Connect();
                     break;
+                case "pos":
+                    Console.WriteLine(_player.Position);
+                    break;
             }
 
         }
