@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 
+using System.Threading;
 
 namespace Server
 {
@@ -9,13 +11,35 @@ namespace Server
         {
             PlayerGroup players = new PlayerGroup();
 
-            ServerNetwork network = new ServerNetwork(players);
+            ServerNetwork network = ServerNetwork.GetInstance();
 
             GameModerator game = new GameModerator(network, players);
 
+            Thread Listen = new Thread(game.Listen);
+            Listen.IsBackground = true;
+            Listen.Start();
+
+
+            string prom; //temp 
+
+
             while (true)
             {
-                game.Update();
+
+                prom = Console.ReadLine();
+
+                List<string> command = new List<string>(prom.Split(' '));
+
+                switch (command[0])
+                {
+                    case "close":
+                        network.Close();
+                        break;
+                    case "send":
+                        network.SendMulti(command[1], players);
+                        break;
+                }
+
             }
         }
     }

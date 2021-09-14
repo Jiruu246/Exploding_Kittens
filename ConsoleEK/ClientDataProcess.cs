@@ -6,13 +6,12 @@ namespace Client
 {
     class ClientDataProcess
     {
-        private ClientNetwork _network;
+        private ClientNetwork _network = ClientNetwork.GetInstance();
         private Player _player;
         private Deck _deck;
 
         public ClientDataProcess(Player p, Deck d)
         {
-            _network = new ClientNetwork(p);
             _player = p;
             _deck = d;
         }
@@ -34,10 +33,11 @@ namespace Client
 
         public bool Connect()
         {
-            bool conn;
-            conn = _network.Connect();
+            bool conn = _network.Connect();
 
-            Thread listen = new Thread(Receive);
+            _player.ClientSK = _network.Socket; // save the socket to the player object
+
+            Thread listen = new Thread(Receive); // when connect establish a listen thread immidiately
             listen.IsBackground = true;
             listen.Start();
 
@@ -60,7 +60,7 @@ namespace Client
             {
                 while (true)
                 {
-                    Execute(_network.GetData());
+                    Execute(_network.GetData(_player.ClientSK));
                 }
             }
             catch
