@@ -6,13 +6,12 @@ namespace Client
 {
     class ClientDataProcess
     {
-        private ClientNetwork _network;
+        private ClientNetwork _network = ClientNetwork.GetInstance();
         private Player _player;
         private Deck _deck;
 
         public ClientDataProcess(Player p, Deck d)
         {
-            _network = new ClientNetwork();
             _player = p;
             _deck = d;
         }

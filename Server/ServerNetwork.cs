@@ -10,10 +10,20 @@ namespace Server
         private IPEndPoint _ClientIP;
         private Socket _Server;
 
-        public ServerNetwork(PlayerGroup players) : base()
+        protected ServerNetwork() : base()
         {
             GenerateAddress();
             Connect();
+        }
+
+        public static ServerNetwork GetInstance()
+        {
+            if (_network == null)
+            {
+                _network = new ServerNetwork();
+            }
+
+            return _network as ServerNetwork;
         }
 
         protected override void GenerateAddress()

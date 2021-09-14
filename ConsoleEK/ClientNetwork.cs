@@ -10,9 +10,19 @@ namespace Client
         private IPEndPoint _ServerIP;
         private Socket _client;
 
-        public ClientNetwork() : base()
+        protected ClientNetwork() : base()
         {
             GenerateAddress();
+        }
+
+        public static ClientNetwork GetInstance()
+        {
+            if (_network == null)
+            {
+                _network = new ClientNetwork();
+            }
+
+            return _network as ClientNetwork;
         }
 
         protected override void GenerateAddress()

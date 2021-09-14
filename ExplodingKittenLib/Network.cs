@@ -10,7 +10,9 @@ namespace ExplodingKittenLib
 {
     public abstract class Network
     {
-        public Network()
+        protected static Network _network;
+
+        protected Network()
         {
 
         }

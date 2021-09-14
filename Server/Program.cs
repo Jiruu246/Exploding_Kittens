@@ -11,7 +11,7 @@ namespace Server
         {
             PlayerGroup players = new PlayerGroup();
 
-            ServerNetwork network = new ServerNetwork(players);
+            ServerNetwork network = ServerNetwork.GetInstance();
 
             GameModerator game = new GameModerator(network, players);
 
