@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExplodingKittenLib.Cards
+namespace ExplodingKittenLib.Requests
 {
-    public class DefuseCard : _Card
+    public abstract class Requests
     {
-        public DefuseCard() : base()
-        {
-        }
     }
 }

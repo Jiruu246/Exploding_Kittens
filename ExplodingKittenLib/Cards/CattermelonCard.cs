@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace ExplodingKittenLib.Cards
 {
-    public class DefuseCard : _Card
+    public class CattermelonCard : _Card
     {
-        public DefuseCard() : base()
+        public CattermelonCard() : base()
         {
+
         }
     }
 }

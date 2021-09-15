@@ -47,6 +47,14 @@ namespace Server
             return _players.IndexOf(player);
         }
 
+        public int NumOfPlayer
+        {
+            get
+            {
+                return _players.Count;
+            }
+        }
+
         public List<Player> PlayerList
         {
             get

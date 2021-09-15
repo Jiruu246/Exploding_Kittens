@@ -41,12 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cards\CattermelonCard.cs" />
     <Compile Include="Cards\DefuseCard.cs" />
+    <Compile Include="Cards\ExplodingCard.cs" />
+    <Compile Include="Cards\SkipCard.cs" />
     <Compile Include="Cards\_Card.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Requests\Requests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

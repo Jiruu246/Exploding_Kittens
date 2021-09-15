@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Threading;
-using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using ExplodingKittenLib;
 
 namespace ExplodingKittenLib
 {
