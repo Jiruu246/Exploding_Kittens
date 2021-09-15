@@ -5,6 +5,7 @@ using ExplodingKittenLib.Cards;
 
 namespace ExplodingKittenLib
 {
+    [Serializable]
     public class Deck
     {
         private List<_Card> _CardList;
@@ -12,6 +13,30 @@ namespace ExplodingKittenLib
         public Deck()
         {
             _CardList = new List<_Card>();
+        }
+
+        public Deck(int numofp, int numofc) : this()
+        {
+            BaseSettup(numofp);
+
+            for (int i = 0; i < numofc - numofp * 2 + 1; i++)
+            {
+                _CardList.Add(_Card.GetRandom());
+            }
+
+            Shuffle();
+        }
+
+        private void BaseSettup(int numofp)
+        {
+            for (int i = 0; i < numofp; i++)
+            {
+                _CardList.Add(_Card.CreateCard(CardType.Exploding));
+            }
+            for (int i = 0; i < numofp - 1; i++)
+            {
+                _CardList.Add(_Card.CreateCard(CardType.Defuse));
+            }
         }
 
         public List<_Card> CardList

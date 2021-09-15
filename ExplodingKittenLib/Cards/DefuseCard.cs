@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExplodingKittenLib.Cards
 {
+    [Serializable]
     public class DefuseCard : _Card
     {
         public DefuseCard() : base()

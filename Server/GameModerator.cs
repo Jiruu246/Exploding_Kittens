@@ -10,19 +10,16 @@ namespace Server
 {
     class GameModerator
     {
-        private ServerNetwork _network;
+        private ServerNetwork _network = ServerNetwork.GetInstance();
         private PlayerGroup _playerGroup;
         private Deck _drawPile;
         private Deck _discardPile;
 
-        public GameModerator(ServerNetwork network, PlayerGroup players)
+        public GameModerator(PlayerGroup players)
         {
-            _network = network;
             _playerGroup = players;
             RegisterCards();
-            _drawPile = new Deck();
             _discardPile = new Deck();
-            CreateDeck(10);
         }
 
         public void Execute(object data)
@@ -33,14 +30,19 @@ namespace Server
                     Console.WriteLine((int)data);
                     break;
                 case "String":
-                    Console.WriteLine((string)data);
+                    StringProcess((string)data);
                     break;
             }
         }
 
         public void StringProcess(string text) //probably will delete
         {
-
+            switch (text)
+            {
+                case "start":
+                    SettupGame();
+                    break;
+            }
         }
 
         public void Listen()
@@ -92,40 +94,25 @@ namespace Server
             }
         }
 
-        private Deck CreateDeck(int num)
+        private void SettupGame()
         {
-            Deck deck = new Deck();
-            deck.Merge(BaseSettup());
+            _drawPile = new Deck(_playerGroup.NumOfPlayer, 20);
 
-            Array value = CardType.GetValues(typeof(CardType));
-            Random random = new Random();
-
-            for(int i = 0; i < num - _playerGroup.NumOfPlayer*2 + 1; i++)
+            foreach (Player player in _playerGroup.PlayerList)
             {
-                CardType card = (CardType)value.GetValue(random.Next(2, value.Length));
-                deck.AddCard(_Card.CreateCard(card));
-            }
-
-            deck.Shuffle();
-
-            return deck;
-        }
-
-        private Deck BaseSettup()
-        {
-            Deck deck = new Deck();
-            int numplayer = _playerGroup.NumOfPlayer;
-            for (int i = 0; i < numplayer; i++)
-            {
-                deck.AddCard(_Card.CreateCard(CardType.Exploding));
-            }
-            for (int i = 0; i < numplayer - 1; i++)
-            {
+                Deck deck = new Deck();
                 deck.AddCard(_Card.CreateCard(CardType.Defuse));
+                for(int i = 0; i < 4; i++)
+                {
+                    deck.AddCard(_Card.GetRandom());
+                }
+
+                player.Deck = deck;
+                _network.SendSingle(player.ClientSK, deck);
             }
 
-            return deck;
         }
+
 
         private void RegisterCards()
         {

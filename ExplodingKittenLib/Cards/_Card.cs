@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace ExplodingKittenLib.Cards
 {
@@ -13,6 +12,7 @@ namespace ExplodingKittenLib.Cards
         Skip,
         Cattermelon
     }
+    [Serializable]
     public abstract class _Card
     {
         private static Dictionary<CardType, Type> _CardClassRegistry = new Dictionary<CardType, Type>();
@@ -45,6 +45,15 @@ namespace ExplodingKittenLib.Cards
         {
             return _CardClassRegistry.FirstOrDefault(entry =>
             EqualityComparer<Type>.Default.Equals(entry.Value, t)).Key;
+        }
+
+        public static _Card GetRandom()
+        {
+            Array value = CardType.GetValues(typeof(CardType));
+            Random random = new Random();
+            CardType card = (CardType)value.GetValue(random.Next(2, value.Length));
+
+            return CreateCard(card);
         }
     }
 }

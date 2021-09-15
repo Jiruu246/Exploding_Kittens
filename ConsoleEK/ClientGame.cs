@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ExplodingKittenLib;
+using ExplodingKittenLib.Cards;
 
 namespace Client
 {
@@ -40,6 +41,15 @@ namespace Client
                     break;
                 case "pos":
                     Console.WriteLine(_player.Position);
+                    break;
+                case "play":
+                    _process.Send("start");
+                    break;
+                case "mydeck":
+                    foreach(_Card card in _player.Deck.CardList)
+                    {
+                        Console.WriteLine(card);
+                    }
                     break;
             }
 

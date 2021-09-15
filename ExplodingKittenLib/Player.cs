@@ -13,6 +13,7 @@ namespace ExplodingKittenLib
 
         public Player()
         {
+            _deck = new Deck();
         }
 
         public int Position
@@ -36,6 +37,18 @@ namespace ExplodingKittenLib
             set
             {
                 _clientSK = value;
+            }
+        }
+        public Deck Deck
+        {
+            get
+            {
+                return _deck;
+            }
+
+            set
+            {
+                _deck = value;
             }
         }
 

@@ -23,8 +23,11 @@ namespace Client
                     SetPlayerPosition((int)data);
                     Console.WriteLine(_player.Position);
                     break;
-                case "String":
+                case "String": // maybe will delete later
                     Console.WriteLine((string)data);
+                    break;
+                case "Deck":
+                    _player.Deck = (Deck)data;
                     break;
             }
 

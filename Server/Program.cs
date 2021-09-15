@@ -12,7 +12,7 @@ namespace Server
 
             ServerNetwork network = ServerNetwork.GetInstance();
 
-            GameModerator game = new GameModerator(network, players);
+            GameModerator game = new GameModerator(players);
 
             Thread Listen = new Thread(game.Listen);
             Listen.IsBackground = true;
