@@ -10,10 +10,16 @@ namespace ExplodingKittenLib
         private Deck _deck;
         private Socket _clientSK;
         private int _position;
+        private bool _roomMaster;
+        private int _turn;
+        private bool _explode;
 
         public Player()
         {
             _deck = new Deck();
+            _roomMaster = false;
+            _turn = 1;
+            _explode = false;
         }
 
         public int Position
@@ -25,6 +31,18 @@ namespace ExplodingKittenLib
             set
             {
                 _position = value;
+                if (_position == 0)
+                    _roomMaster = true;
+                else
+                    _roomMaster = false;
+            }
+        }
+
+        public bool RoomMaster
+        {
+            get
+            {
+                return _roomMaster;
             }
         }
         public Socket ClientSK
@@ -49,6 +67,32 @@ namespace ExplodingKittenLib
             set
             {
                 _deck = value;
+            }
+        }
+
+        public int Turn
+        {
+            get
+            {
+                return _turn;
+            }
+
+            set
+            {
+                _turn = value;
+            }
+        }
+
+        public bool Explode
+        {
+            get
+            {
+                return _explode;
+            }
+
+            set
+            {
+                _explode = value;
             }
         }
 

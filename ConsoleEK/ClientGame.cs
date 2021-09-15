@@ -12,14 +12,15 @@ namespace Client
         private Player _player;
         private ClientDataProcess _process;
         private List<int> _playernumcards;
-        private Deck _deck;
+        private Deck _deck; //maybe its nescessary
         private bool _ready;
 
         public ClientGame()
         {
             _player = new Player();
+            _deck = _player.Deck;
             _ready = false;
-            _process = new ClientDataProcess(_player, _deck);
+            _process = new ClientDataProcess(_player);
 
         }
         public void Update()
@@ -42,14 +43,17 @@ namespace Client
                 case "pos":
                     Console.WriteLine(_player.Position);
                     break;
-                case "play":
+                case "start":
                     _process.Send("start");
                     break;
                 case "mydeck":
-                    foreach(_Card card in _player.Deck.CardList)
+                    foreach(_Card card in _deck.CardList)
                     {
                         Console.WriteLine(card);
                     }
+                    break;
+                case "playcard":
+                    _process.Send(_deck.CardList[int.Parse(command[1])]);
                     break;
             }
 

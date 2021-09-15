@@ -4,16 +4,14 @@ using ExplodingKittenLib;
 
 namespace Client
 {
-    class ClientDataProcess
+    class ClientDataProcess //facade pattern
     {
         private ClientNetwork _network = ClientNetwork.GetInstance();
         private Player _player;
-        private Deck _deck;
 
-        public ClientDataProcess(Player p, Deck d)
+        public ClientDataProcess(Player player)
         {
-            _player = p;
-            _deck = d;
+            _player = player;
         }
         public void Execute(object data)
         {
@@ -27,7 +25,7 @@ namespace Client
                     Console.WriteLine((string)data);
                     break;
                 case "Deck":
-                    _player.Deck = (Deck)data;
+                    MergeDeck((Deck)data);
                     break;
             }
 
@@ -75,6 +73,11 @@ namespace Client
         private void SetPlayerPosition(int position)
         {
             _player.Position = position;
+        }
+
+        private void MergeDeck(Deck deck)
+        {
+            _player.Deck.Merge(deck);
         }
     }
 }

@@ -43,7 +43,7 @@ namespace ExplodingKittenLib
             byte[] data = new byte[2048];
             client.Receive(data);
             object message = (object)Deserialize(data);
-            Console.WriteLine(message.GetType().Name);
+            Console.WriteLine(message.GetType());
             return message;
         }
     }

@@ -32,6 +32,14 @@ namespace Server
             return player;
         }
 
+        public void ResetTurn()
+        {
+            foreach(Player player in _players)
+            {
+                player.Turn = 1;
+            }
+        }
+
         public void RemovePlayer(Player player)
         {
             _players.Remove(player);

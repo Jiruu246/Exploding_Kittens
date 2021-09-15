@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExplodingKittenLib.Requests
+namespace ExplodingKittenLib.Request
 {
-    public abstract class Requests
+    [Serializable]
+    class DrawRequest : _Request
     {
     }
 }

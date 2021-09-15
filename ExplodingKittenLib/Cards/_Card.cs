@@ -13,7 +13,7 @@ namespace ExplodingKittenLib.Cards
         Cattermelon
     }
     [Serializable]
-    public abstract class _Card
+    public abstract class _Card // factory pattern?
     {
         private static Dictionary<CardType, Type> _CardClassRegistry = new Dictionary<CardType, Type>();
         protected CardType _cardName;

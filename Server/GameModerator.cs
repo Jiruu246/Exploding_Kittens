@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Request;
 
 namespace Server
 {
@@ -14,33 +15,47 @@ namespace Server
         private PlayerGroup _playerGroup;
         private Deck _drawPile;
         private Deck _discardPile;
+        private bool _start;
+        private int _currentP;
 
         public GameModerator(PlayerGroup players)
         {
+            _start = false;
             _playerGroup = players;
             RegisterCards();
             _discardPile = new Deck();
         }
 
-        public void Execute(object data)
+        public void Execute(object data, Player player)
         {
-            switch (data.GetType().Name)
+
+            if (data is int)
             {
-                case "Int32":
-                    Console.WriteLine((int)data);
-                    break;
-                case "String":
-                    StringProcess((string)data);
-                    break;
+                Console.WriteLine((int)data);
             }
+            else if(data is String)
+            {
+                StringProcess((string)data, player);
+            }
+            else if (data is _Card)
+            {
+                Console.WriteLine("this is a card wwooooo");
+            }
+
         }
 
-        public void StringProcess(string text) //probably will delete
+        public void StringProcess(string text, Player player) //probably will delete
         {
             switch (text)
             {
                 case "start":
-                    SettupGame();
+                    if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
+                    {
+                        _start = true;
+                        Thread newgame = new Thread(StartGame);
+                        newgame.IsBackground = true;
+                        newgame.Start();
+                    }
                     break;
             }
         }
@@ -49,23 +64,25 @@ namespace Server
         {
             while (true)
             {
-                if (!_playerGroup.MaxPlayer())
+                if (!_start)
                 {
-                    Socket Client = _network.Listen();
-
-                    if (Client != null)
+                    if (!_playerGroup.MaxPlayer())
                     {
-                        Player player = _playerGroup.AddPlayer(Client);
+                        Socket Client = _network.Listen();
 
-                        _network.SendSingle(Client, player.Position); // send the player position
+                        if (Client != null)
+                        {
+                            Player player = _playerGroup.AddPlayer(Client);
 
-                        Thread recieve = new Thread(() => { Receive(player); });
-                        recieve.IsBackground = true;
-                        recieve.Start();
+                            _network.SendSingle(Client, player.Position); // send the player position
 
+                            Thread recieve = new Thread(() => { Receive(player); });
+                            recieve.IsBackground = true;
+                            recieve.Start();
+
+                        }
                     }
                 }
-
             }
         }
 
@@ -75,7 +92,7 @@ namespace Server
             {
                 while (true)
                 {
-                    Execute(_network.GetData(player.ClientSK));
+                    Execute(_network.GetData(player.ClientSK), player);
                 }
             }
             catch (Exception e)
@@ -94,9 +111,9 @@ namespace Server
             }
         }
 
-        private void SettupGame()
+        private void SettupGame(int numofcard)
         {
-            _drawPile = new Deck(_playerGroup.NumOfPlayer, 20);
+            _drawPile = new Deck(_playerGroup.NumOfPlayer, numofcard);
 
             foreach (Player player in _playerGroup.PlayerList)
             {
@@ -109,6 +126,37 @@ namespace Server
 
                 player.Deck = deck;
                 _network.SendSingle(player.ClientSK, deck);
+            }
+
+        }
+
+        private void StartGame()
+        {
+            SettupGame(20);
+
+            while (_playerGroup.NumOfPlayer > 1)
+            {
+                _playerGroup.ResetTurn();
+                for(int i = 0; i < _playerGroup.NumOfPlayer; i++)
+                {
+                    _currentP = i;
+                    Player player = _playerGroup.PlayerList[i];
+                    if (!player.Explode)
+                    {
+                        while (player.Turn != 0)
+                        {
+                            _network.SendSingle(player.ClientSK, "Your turn");
+
+                            while (playernotdraw)
+                            {
+                                if (player.Turn == 0)
+                                    break;
+                            }
+
+                            player.Turn = -1;
+                        }
+                    }
+                }
             }
 
         }
