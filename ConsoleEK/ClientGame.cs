@@ -55,6 +55,10 @@ namespace Client
                 case "playcard":
                     _process.Send(_deck.CardList[int.Parse(command[1])]);
                     break;
+                case "draw":
+                    _process.Send(Requests.Draw);
+                    _player.Turn -= 1;
+                    break;
             }
 
         }

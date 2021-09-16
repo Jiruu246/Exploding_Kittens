@@ -12,6 +12,11 @@ namespace ExplodingKittenLib.Cards
         Skip,
         Cattermelon
     }
+
+    public enum Actions
+    {
+        Skip
+    }
     [Serializable]
     public abstract class _Card // factory pattern?
     {

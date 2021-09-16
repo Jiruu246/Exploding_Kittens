@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
+using ExplodingKittenLib.Cards;
 
 namespace ExplodingKittenLib
 {
@@ -94,6 +95,11 @@ namespace ExplodingKittenLib
             {
                 _explode = value;
             }
+        }
+
+        public void GetCard(_Card card)
+        {
+            _deck.AddCard(card);
         }
 
     }

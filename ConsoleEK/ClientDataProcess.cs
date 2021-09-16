@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using ExplodingKittenLib;
+using ExplodingKittenLib.Cards;
 
 namespace Client
 {
@@ -8,25 +9,38 @@ namespace Client
     {
         private ClientNetwork _network = ClientNetwork.GetInstance();
         private Player _player;
+        private Deck _deck;
+        private ClientRequestProcess _reqProc;
 
         public ClientDataProcess(Player player)
         {
             _player = player;
+            _deck = _player.Deck;
+            _reqProc = new ClientRequestProcess();
         }
         public void Execute(object data)
         {
-            switch (data.GetType().Name)
+            if (data is int)
             {
-                case "Int32":
-                    SetPlayerPosition((int)data);
-                    Console.WriteLine(_player.Position);
-                    break;
-                case "String": // maybe will delete later
-                    Console.WriteLine((string)data);
-                    break;
-                case "Deck":
-                    MergeDeck((Deck)data);
-                    break;
+                Console.WriteLine((int)data);
+            }
+            else if (data is String)
+            {
+                Console.WriteLine((string)data);
+            }
+            else if(data is Deck)
+            {
+                MergeDeck((Deck)data);
+            }
+            else if (data is _Card)
+            {
+                Console.WriteLine("this is a card wwooooo"); //just get a card
+                GetCard((_Card)data);
+            }
+            else if (data is Requests)
+            {
+                //put it in the request processor
+                _reqProc.Execute((Requests)data);
             }
 
 
@@ -77,7 +91,12 @@ namespace Client
 
         private void MergeDeck(Deck deck)
         {
-            _player.Deck.Merge(deck);
+            _deck.Merge(deck);
+        }
+
+        private void GetCard(_Card card)
+        {
+            _deck.AddCard(card);
         }
     }
 }

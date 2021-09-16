@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ExplodingKittenLib.Cards;
 
@@ -80,6 +81,39 @@ namespace ExplodingKittenLib
 
             }
 
+        }
+
+        public bool DeckNotEmpty
+        {
+            get
+            {
+                return _CardList.Any();
+            }
+        }
+
+        public _Card Pop()
+        {
+            if (DeckNotEmpty)
+            {
+                _Card card = _CardList[_CardList.Count - 1];
+                _CardList.RemoveAt(_CardList.Count - 1);
+                return card;
+            }
+            else
+                return null;
+
+        }
+
+        public _Card PopBottom()
+        {
+            if (DeckNotEmpty)
+            {
+                _Card card = _CardList[0];
+                _CardList.RemoveAt(0);
+                return card;
+            }
+            else
+                return null;
         }
     }
 }

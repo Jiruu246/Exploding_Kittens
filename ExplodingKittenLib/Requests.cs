@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExplodingKittenLib.Request
+namespace ExplodingKittenLib
 {
     [Serializable]
-    class DrawRequest : _Request
+    public enum Requests
     {
+        YourTurn,
+        Draw
     }
 }

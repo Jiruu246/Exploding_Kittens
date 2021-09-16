@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
-using ExplodingKittenLib.Request;
 
 namespace Server
 {
@@ -13,15 +12,20 @@ namespace Server
     {
         private ServerNetwork _network = ServerNetwork.GetInstance();
         private PlayerGroup _playerGroup;
+        private CardProcessor _cardProc;
+        private RequestProcessor _reqProc;
         private Deck _drawPile;
         private Deck _discardPile;
         private bool _start;
         private int _currentP;
+        private bool _playerDraw;
 
         public GameModerator(PlayerGroup players)
         {
             _start = false;
             _playerGroup = players;
+            _reqProc = new RequestProcessor(this);
+            _cardProc = new CardProcessor();
             RegisterCards();
             _discardPile = new Deck();
         }
@@ -39,7 +43,12 @@ namespace Server
             }
             else if (data is _Card)
             {
-                Console.WriteLine("this is a card wwooooo");
+                Console.WriteLine("this is a card wwooooo"); //then put it in the card processor
+            }
+            else if (data is Requests)
+            {
+                //put it in the request processor
+                _reqProc.Process((Requests)data, player);
             }
 
         }
@@ -130,6 +139,17 @@ namespace Server
 
         }
 
+        public bool PlayerDraw
+        {
+            get
+            {
+                return _playerDraw;
+            }
+            set
+            {
+                _playerDraw = value;
+            }
+        }
         private void StartGame()
         {
             SettupGame(20);
@@ -141,24 +161,57 @@ namespace Server
                 {
                     _currentP = i;
                     Player player = _playerGroup.PlayerList[i];
-                    if (!player.Explode)
-                    {
-                        while (player.Turn != 0)
-                        {
-                            _network.SendSingle(player.ClientSK, "Your turn");
 
-                            while (playernotdraw)
+                    while (player.Turn != 0)
+                    {
+                        if (!player.Explode)
+                        {
+                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
+
+                            PlayerDraw = false;
+                            while (!PlayerDraw)
                             {
                                 if (player.Turn == 0)
                                     break;
                             }
 
-                            player.Turn = -1;
+                            player.Turn--;
                         }
                     }
+
                 }
             }
 
+        }
+
+        public void GiveTopCard(Player player) //change return type
+        {
+            _Card card = _drawPile.Pop();
+            SyncSending(player, card);
+        }
+
+        public void GiveBottomCard(Player player)
+        {
+            _Card card = _drawPile.PopBottom();
+            SyncSending(player, card);
+        }
+        public int CurrentPlayer
+        {
+            get
+            {
+                return _currentP;
+            }
+        }
+
+        private void SyncSending(Player player, _Card card)
+        {
+            _playerGroup.GivePlayerData(player.Position, card);
+            _network.SendSingle(player.ClientSK, card);
+        }
+
+        public void SendDeny(Player player)
+        {
+            _network.SendSingle(player.ClientSK, "Deny");
         }
 
 

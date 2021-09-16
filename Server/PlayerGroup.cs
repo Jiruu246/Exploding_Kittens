@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ExplodingKittenLib;
+using ExplodingKittenLib.Cards;
 using System.Net.Sockets;
 
 namespace Server
@@ -69,6 +70,11 @@ namespace Server
             {
                 return _players;
             }
+        }
+
+        public void GivePlayerData(int playerpos, _Card card)
+        {
+            _players[playerpos].GetCard(card);
         }
     }
 }
