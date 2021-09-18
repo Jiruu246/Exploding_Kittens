@@ -20,11 +20,21 @@ namespace Server
             _currentSender = player.Position;
             switch (request)
             {
+                case Requests.Start:
+                    _gameMod.CreateGame(player);
+                    break;
                 case Requests.Draw:
                     if (_gameMod.CurrentPlayer == _currentSender)
                     {
-                        _gameMod.PlayerDraw = true;
                         _gameMod.GiveTopCard(player);
+                        /*if (!explode)
+                        {
+                            _gameMod.EndTurn = true;
+                        }
+                        else
+                        {
+                            _gameMod.DrawBom = true;
+                        }*/
                     }
                     else
                         _gameMod.SendDeny(player);

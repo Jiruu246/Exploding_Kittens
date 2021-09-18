@@ -7,7 +7,7 @@ using ExplodingKittenLib.Cards;
 
 namespace ExplodingKittenLib
 {
-    interface IActivatable
+    public interface IActivatable
     {
         List<Actions> Activate();
     }

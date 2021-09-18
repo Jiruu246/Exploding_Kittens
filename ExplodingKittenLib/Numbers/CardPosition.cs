@@ -4,16 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExplodingKittenLib
+namespace ExplodingKittenLib.Numbers
 {
     [Serializable]
-    public enum Requests
+    public class CardPosition : Numbers
     {
-        Start,
-        YourTurn,
-        Draw,
-        Explode,
-        Defuse,
-        YouWin
+        public CardPosition(int i) : base(i) { }
     }
 }

@@ -8,11 +8,10 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            PlayerGroup players = new PlayerGroup();
 
             ServerNetwork network = ServerNetwork.GetInstance();
 
-            GameModerator game = new GameModerator(players);
+            GameModerator game = new GameModerator();
 
             Thread Listen = new Thread(game.Listen);
             Listen.IsBackground = true;
@@ -35,7 +34,7 @@ namespace Server
                         network.Close();
                         break;
                     case "send":
-                        network.SendMulti(command[1], players);
+//                        network.SendMulti(command[1], players);
                         break;
                 }
 

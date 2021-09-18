@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Numbers;
 
 namespace ExplodingKittenLib
 {
@@ -10,16 +11,17 @@ namespace ExplodingKittenLib
     {
         private Deck _deck;
         private Socket _clientSK;
-        private int _position;
+        private Position _position;
         private bool _roomMaster;
-        private int _turn;
+        private Turn _turn;
         private bool _explode;
 
         public Player()
         {
+            _position = new Position(0);
             _deck = new Deck();
             _roomMaster = false;
-            _turn = 1;
+            _turn = new Turn(1);
             _explode = false;
         }
 
@@ -27,12 +29,12 @@ namespace ExplodingKittenLib
         {
             get
             {
-                return _position;
+                return _position.Get;
             }
             set
             {
-                _position = value;
-                if (_position == 0)
+                _position.Get = value;
+                if (_position.Get == 0)
                     _roomMaster = true;
                 else
                     _roomMaster = false;
@@ -75,12 +77,28 @@ namespace ExplodingKittenLib
         {
             get
             {
-                return _turn;
+                return _turn.Get;
             }
 
             set
             {
-                _turn = value;
+                _turn.Get = value;
+            }
+        }
+
+        public Turn GetTurn
+        {
+            get
+            {
+                return _turn;
+            }
+        }
+
+        public Position GetPosition
+        {
+            get
+            {
+                return _position;
             }
         }
 

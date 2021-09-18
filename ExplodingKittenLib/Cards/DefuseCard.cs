@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 namespace ExplodingKittenLib.Cards
 {
     [Serializable]
-    public class DefuseCard : _Card
+    public class DefuseCard : _Card, IActivatable
     {
         public DefuseCard() : base()
         {
         }
 
-        public void Activate()
+        public List<Actions> Activate()
         {
-
+            List<Actions> actions = new List<Actions>();
+            actions.Add(Actions.Defuse);
+            return actions;
         }
     }
 }

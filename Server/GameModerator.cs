@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Numbers;
 
 namespace Server
 {
@@ -16,34 +17,37 @@ namespace Server
         private RequestProcessor _reqProc;
         private Deck _drawPile;
         private Deck _discardPile;
-        private bool _start;
-        private int _currentP;
-        private bool _playerDraw;
 
-        public GameModerator(PlayerGroup players)
+        private Player _Winner; // this could keep
+        private bool _start; // this could keep
+
+        private int _currentP;
+        private ManageTurn _currentTurn;
+
+
+        public GameModerator()
         {
-            _start = false;
-            _playerGroup = players;
-            _reqProc = new RequestProcessor(this);
-            _cardProc = new CardProcessor();
+            ResetGame();
             RegisterCards();
-            _discardPile = new Deck();
         }
 
+
+        /// <summary>
+        /// this need to change maybe
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="player"></param>
         public void Execute(object data, Player player)
         {
 
-            if (data is int)
+            if (data is Numbers)
             {
-                Console.WriteLine((int)data);
-            }
-            else if(data is String)
-            {
-                StringProcess((string)data, player);
+                CardPosition pos = data as CardPosition;
+                _currentTurn.BombPosition = pos.Get;
             }
             else if (data is _Card)
             {
-                Console.WriteLine("this is a card wwooooo"); //then put it in the card processor
+                _cardProc.Process((_Card)data, player);
             }
             else if (data is Requests)
             {
@@ -53,19 +57,16 @@ namespace Server
 
         }
 
-        public void StringProcess(string text, Player player) //probably will delete
+        public void CreateGame(Player player)
         {
-            switch (text)
+            if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
             {
-                case "start":
-                    if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
-                    {
-                        _start = true;
-                        Thread newgame = new Thread(StartGame);
-                        newgame.IsBackground = true;
-                        newgame.Start();
-                    }
-                    break;
+                SettupGame(20);
+
+                _start = true;
+                Thread newgame = new Thread(StartGame);
+                newgame.IsBackground = true;
+                newgame.Start();
             }
         }
 
@@ -73,23 +74,34 @@ namespace Server
         {
             while (true)
             {
-                if (!_start)
+                if (!_playerGroup.MaxPlayer())
                 {
-                    if (!_playerGroup.MaxPlayer())
-                    {
-                        Socket Client = _network.Listen();
+                    Socket Client = _network.Listen();
 
-                        if (Client != null)
+                    if (_start)
+                    {
+                        _network.SendSingle(Client, "The game already start");
+                        Client.Close();
+                    }
+                    else if (Client != null)
+                    {
+                        try
                         {
                             Player player = _playerGroup.AddPlayer(Client);
 
-                            _network.SendSingle(Client, player.Position); // send the player position
+                            _network.SendSingle(Client, player.GetPosition); // send the player position object
 
                             Thread recieve = new Thread(() => { Receive(player); });
                             recieve.IsBackground = true;
                             recieve.Start();
-
                         }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Console.WriteLine("disconnect bug");
+                            _network.GenerateAddress();
+                        }
+
                     }
                 }
             }
@@ -99,7 +111,7 @@ namespace Server
         {
             try
             {
-                while (true)
+                while (!player.Explode) //should be put at other place???
                 {
                     Execute(_network.GetData(player.ClientSK), player);
                 }
@@ -107,6 +119,7 @@ namespace Server
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                Console.WriteLine("Receive error!!!!!!");
                 _network.CloseClient(player.ClientSK, _playerGroup);
                 ResendPosition(); // when someone disconnect, resend the position
             }
@@ -116,7 +129,7 @@ namespace Server
         {
             foreach (Player p in _playerGroup.PlayerList)
             {
-                _network.SendSingle(p.ClientSK, p.Position);
+                _network.SendSingle(p.ClientSK, p.GetPosition);
             }
         }
 
@@ -139,46 +152,102 @@ namespace Server
 
         }
 
-        public bool PlayerDraw
+        public Player Winner
         {
             get
             {
-                return _playerDraw;
+                return _Winner;
             }
+
             set
             {
-                _playerDraw = value;
+                _Winner = value;
             }
         }
+
+
         private void StartGame()
         {
-            SettupGame(20);
-
-            while (_playerGroup.NumOfPlayer > 1)
+            try
             {
-                _playerGroup.ResetTurn();
-                for(int i = 0; i < _playerGroup.NumOfPlayer; i++)
+                while (Winner == null)
                 {
-                    _currentP = i;
-                    Player player = _playerGroup.PlayerList[i];
-
-                    while (player.Turn != 0)
+                    ResetTurn(); //exploded player will have 0 turn
+                    for(int i = 0; i < _playerGroup.NumOfPlayer; i++)
                     {
-                        if (!player.Explode)
+                        _currentP = i;
+                        Player player = _playerGroup.GetPlayerAt(i);
+                        
+                        //need rework
+                        while (player.Turn > 0)
                         {
-                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
-
-                            PlayerDraw = false;
-                            while (!PlayerDraw)
+                            try
                             {
-                                if (player.Turn == 0)
-                                    break;
-                            }
+                                _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
+                                Thread afkHandler = new Thread(()=> { AFKHandler(player); });
+                                afkHandler.IsBackground = true;
+                                afkHandler.Start();
+                                _currentTurn.Start();
+                                /*if (!player.Explode)
+                                {
 
-                            player.Turn--;
+                                    while (!EndTurn)
+                                    {
+                                        if (_playerGroup.NumOfPlayer == 1) // if everyone afk
+                                        {
+                                            player = _playerGroup.GetPlayerAt(0);
+                                            Winner = player;
+                                            _network.SendSingle(player.ClientSK, "you winnnnnnnn!!!"); //change the request
+                                            return;
+                                        }
+                                        else if (!_playerGroup.HasPlayer(player))
+                                        {
+                                            if(i == _playerGroup.NumOfPlayer)
+                                            {
+                                                break;
+                                            }
+                                            player = _playerGroup.PlayerList[i];
+                                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
+                                        }
+                                        else if (player.Turn == 0)
+                                        {
+                                            break;
+                                        }
+                                        else if (DrawBom)
+                                        {
+                                            ICantThinkOfAnyName(player);
+                                        }
+                                    }*/
+                                ReduceTurn(player);
+                                afkHandler.Abort();
+                                //}
+
+                            }
+                            catch(Exception e)
+                            {
+                                Console.WriteLine("AFK error");
+                            }
                         }
                     }
 
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("disconnect error");
+                ResetGame();
+            }
+
+        }
+
+        public Exception AFKHandler(Player player)
+        {
+            while (true)
+            {
+                if (!_playerGroup.HasPlayer(player))
+                {
+                    return new ObjectDisposedException("Player left!!!");
                 }
             }
 
@@ -188,12 +257,17 @@ namespace Server
         {
             _Card card = _drawPile.Pop();
             SyncSending(player, card);
+
+            CheckBomb(card);
         }
 
         public void GiveBottomCard(Player player)
         {
             _Card card = _drawPile.PopBottom();
             SyncSending(player, card);
+
+            CheckBomb(card);
+
         }
         public int CurrentPlayer
         {
@@ -203,15 +277,62 @@ namespace Server
             }
         }
 
+        public void ReduceTurn(Player player)
+        {
+            player.Turn--;
+            _network.SendSingle(player.ClientSK, player.GetTurn);
+        }
+
+        /// <summary>
+        /// Reset alive player turn
+        /// </summary>
+        public void ResetTurn()
+        {
+            _playerGroup.ResetTurn();
+            _network.SendMulti(new Turn(1), _playerGroup);
+
+        }
+
         private void SyncSending(Player player, _Card card)
         {
             _playerGroup.GivePlayerData(player.Position, card);
             _network.SendSingle(player.ClientSK, card);
+
+            //return card is ExplodingCard;
         }
+
+        private void CheckBomb(_Card card)
+        {
+            if (card is ExplodingCard)
+            {
+                _currentTurn.DrawBomb = true;
+            }
+            else
+            {
+                _currentTurn.EndTurn = true;
+            }
+        }
+
+        public void DefuseCurrentTurn()
+        {
+            _currentTurn.BombDefuse = true;
+        }
+
+
 
         public void SendDeny(Player player)
         {
             _network.SendSingle(player.ClientSK, "Deny");
+        }
+
+        public void ResetGame()
+        {
+            _Winner = null;
+            _start = false;
+            _playerGroup = new PlayerGroup();
+            _reqProc = new RequestProcessor(this);
+            _cardProc = new CardProcessor(this);
+            _discardPile = new Deck();
         }
 
 

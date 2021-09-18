@@ -37,13 +37,20 @@ namespace Server
         {
             foreach(Player player in _players)
             {
-                player.Turn = 1;
+                if (!player.Explode)
+                {
+                    player.Turn = 1;
+                }
+                else
+                {
+                    player.Turn = 0;
+                }
             }
         }
 
-        public void RemovePlayer(Player player)
+        public void RemovePlayerAt(int i)
         {
-            _players.Remove(player);
+            _players.RemoveAt(i);
             // rework the position
             foreach(Player p in _players)
             {
@@ -72,9 +79,19 @@ namespace Server
             }
         }
 
+        public Player GetPlayerAt(int i)
+        {
+            return _players[i];
+        }
+
         public void GivePlayerData(int playerpos, _Card card)
         {
             _players[playerpos].GetCard(card);
+        }
+
+        public bool HasPlayer(Player player)
+        {
+            return _players.Contains(player);
         }
     }
 }

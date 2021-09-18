@@ -2,6 +2,7 @@
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
@@ -11,18 +12,20 @@ namespace Client
         private Player _player;
         private Deck _deck;
         private ClientRequestProcess _reqProc;
+        private ClientNumberProcess _numProc;
 
         public ClientDataProcess(Player player)
         {
             _player = player;
             _deck = _player.Deck;
             _reqProc = new ClientRequestProcess();
+            _numProc = new ClientNumberProcess(this);
         }
         public void Execute(object data)
         {
-            if (data is int)
+            if (data is Numbers)
             {
-                Console.WriteLine((int)data);
+                _numProc.Execute((Numbers)data);
             }
             else if (data is String)
             {
@@ -84,9 +87,13 @@ namespace Client
             }
         }
 
-        private void SetPlayerPosition(int position)
+        public void SetPlayerPosition(int position)
         {
             _player.Position = position;
+        }
+        public void SetPlayerTurn(int turns)
+        {
+            _player.Turn = turns;
         }
 
         private void MergeDeck(Deck deck)

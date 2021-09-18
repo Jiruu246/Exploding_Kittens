@@ -15,6 +15,7 @@ namespace ExplodingKittenLib.Cards
 
     public enum Actions
     {
+        Defuse,
         Skip
     }
     [Serializable]

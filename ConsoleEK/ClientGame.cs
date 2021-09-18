@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
@@ -44,7 +45,7 @@ namespace Client
                     Console.WriteLine(_player.Position);
                     break;
                 case "start":
-                    _process.Send("start");
+                    _process.Send(Requests.Start);
                     break;
                 case "mydeck":
                     foreach(_Card card in _deck.CardList)
@@ -57,7 +58,9 @@ namespace Client
                     break;
                 case "draw":
                     _process.Send(Requests.Draw);
-                    _player.Turn -= 1;
+                    break;
+                case "cardpos":
+                    _process.Send(new CardPosition(int.Parse(command[1])));
                     break;
             }
 
