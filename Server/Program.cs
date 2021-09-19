@@ -36,6 +36,15 @@ namespace Server
                     case "send":
 //                        network.SendMulti(command[1], players);
                         break;
+                    case "drawpile":
+                        game.ShowDrawPile();
+                        break;
+                    case "dispile":
+                        game.ShowDisPile();
+                        break;
+                    case "playerdeck":
+                        game.ShowPlayerDeck(int.Parse(command[1]));
+                        break;
                 }
 
             }

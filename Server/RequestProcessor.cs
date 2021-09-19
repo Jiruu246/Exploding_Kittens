@@ -27,14 +27,6 @@ namespace Server
                     if (_gameMod.CurrentPlayer == _currentSender)
                     {
                         _gameMod.GiveTopCard(player);
-                        /*if (!explode)
-                        {
-                            _gameMod.EndTurn = true;
-                        }
-                        else
-                        {
-                            _gameMod.DrawBom = true;
-                        }*/
                     }
                     else
                         _gameMod.SendDeny(player);

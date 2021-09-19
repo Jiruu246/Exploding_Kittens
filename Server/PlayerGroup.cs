@@ -79,6 +79,38 @@ namespace Server
             }
         }
 
+        public int NumOfSurvival
+        {
+            
+            get
+            {
+                int i = 0;
+                foreach(Player p in _players)
+                {
+                    if(p.Explode == false)
+                    {
+                        i++;
+                    }
+                }
+                return i;
+            }
+        }
+
+        public Player GetWinner()
+        {
+            if(NumOfSurvival == 1)
+            {
+                foreach(Player p in _players)
+                {
+                    if(p.Explode == false)
+                    {
+                        return p;
+                    }
+                }
+            }
+            return null;
+        }
+
         public Player GetPlayerAt(int i)
         {
             return _players[i];

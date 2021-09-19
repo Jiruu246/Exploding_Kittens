@@ -24,12 +24,44 @@ namespace Server
         private int _currentP;
         private ManageTurn _currentTurn;
 
+        private int _direction;
+
 
         public GameModerator()
         {
             ResetGame();
             RegisterCards();
         }
+
+        /// <summary>
+        /// tempo
+        /// </summary>
+        public void ShowDrawPile()
+        {
+            foreach(_Card c in _drawPile.CardList)
+            {
+                Console.WriteLine(c);
+            }
+        }
+
+        public void ShowDisPile()
+        {
+            foreach (_Card c in _discardPile.CardList)
+            {
+                Console.WriteLine(c);
+            }
+        }
+
+        public void ShowPlayerDeck(int i)
+        {
+            Player p = _playerGroup.GetPlayerAt(i);
+
+            foreach (_Card c in p.Deck.CardList)
+            {
+                Console.WriteLine(c);
+            }
+        }
+        ///
 
 
         /// <summary>
@@ -47,11 +79,12 @@ namespace Server
             }
             else if (data is _Card)
             {
+                //shouldnt do this out here
+
                 _cardProc.Process((_Card)data, player);
             }
             else if (data is Requests)
             {
-                //put it in the request processor
                 _reqProc.Process((Requests)data, player);
             }
 
@@ -141,7 +174,7 @@ namespace Server
             {
                 Deck deck = new Deck();
                 deck.AddCard(_Card.CreateCard(CardType.Defuse));
-                for(int i = 0; i < 4; i++)
+                for(int i = 0; i < 4; i++) //each player start with 4 card and a defuse
                 {
                     deck.AddCard(_Card.GetRandom());
                 }
@@ -173,64 +206,64 @@ namespace Server
                 while (Winner == null)
                 {
                     ResetTurn(); //exploded player will have 0 turn
-                    for(int i = 0; i < _playerGroup.NumOfPlayer; i++)
+                    for(int i = 0; i < _playerGroup.NumOfPlayer; i += Direction)
                     {
                         _currentP = i;
-                        Player player = _playerGroup.GetPlayerAt(i);
+                        Player player =_playerGroup.GetPlayerAt(i);
                         
-                        //need rework
                         while (player.Turn > 0)
                         {
-                            try
+
+                            _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
+
+                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
+
+                            while (!_currentTurn.EndTurn)
                             {
-                                _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
-                                Thread afkHandler = new Thread(()=> { AFKHandler(player); });
-                                afkHandler.IsBackground = true;
-                                afkHandler.Start();
-                                _currentTurn.Start();
-                                /*if (!player.Explode)
+                                /// AFK detect
+                                if(_playerGroup.NumOfPlayer == 0)/// if everyone afk
                                 {
-
-                                    while (!EndTurn)
+                                    ResetGame();
+                                    return;
+                                }
+                                if (_playerGroup.NumOfPlayer == 1) 
+                                {
+                                    player = _playerGroup.GetPlayerAt(0);
+                                    Winner = player;
+                                    break;
+                                }
+                                else if (!_playerGroup.HasPlayer(player))
+                                {
+                                    if (i == _playerGroup.NumOfPlayer)
                                     {
-                                        if (_playerGroup.NumOfPlayer == 1) // if everyone afk
-                                        {
-                                            player = _playerGroup.GetPlayerAt(0);
-                                            Winner = player;
-                                            _network.SendSingle(player.ClientSK, "you winnnnnnnn!!!"); //change the request
-                                            return;
-                                        }
-                                        else if (!_playerGroup.HasPlayer(player))
-                                        {
-                                            if(i == _playerGroup.NumOfPlayer)
-                                            {
-                                                break;
-                                            }
-                                            player = _playerGroup.PlayerList[i];
-                                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
-                                        }
-                                        else if (player.Turn == 0)
-                                        {
-                                            break;
-                                        }
-                                        else if (DrawBom)
-                                        {
-                                            ICantThinkOfAnyName(player);
-                                        }
-                                    }*/
-                                ReduceTurn(player);
-                                afkHandler.Abort();
-                                //}
+                                        break;
+                                    }
+                                    player = _playerGroup.PlayerList[i];
+                                    _network.SendSingle(player.ClientSK, Requests.YourTurn);
+                                }
+                                ///
 
+                                _currentTurn.Busy();
                             }
-                            catch(Exception e)
+
+                            ReduceTurn(player);
+
+                            if(_playerGroup.NumOfSurvival == 1)
                             {
-                                Console.WriteLine("AFK error");
+                                Winner = _playerGroup.GetWinner();
+                                break;
                             }
+                        }
+
+                        if(Winner != null)
+                        {
+                            break;
                         }
                     }
 
                 }
+
+                _network.SendSingle(Winner.ClientSK, "you winnnnn!!!!!!!");
             }
             catch (Exception e)
             {
@@ -241,17 +274,6 @@ namespace Server
 
         }
 
-        public Exception AFKHandler(Player player)
-        {
-            while (true)
-            {
-                if (!_playerGroup.HasPlayer(player))
-                {
-                    return new ObjectDisposedException("Player left!!!");
-                }
-            }
-
-        }
 
         public void GiveTopCard(Player player) //change return type
         {
@@ -275,6 +297,27 @@ namespace Server
             {
                 return _currentP;
             }
+        }
+
+        public int Direction
+        {
+            get
+            {
+                return _direction;
+            }
+            set
+            {
+                if(value == 1 || value == -1)
+                {
+                    _direction = value;
+                }
+            }
+        }
+
+        public void ChageDirection()
+        {
+            Direction *= -1;
+            ResetTurn();
         }
 
         public void ReduceTurn(Player player)
@@ -333,6 +376,7 @@ namespace Server
             _reqProc = new RequestProcessor(this);
             _cardProc = new CardProcessor(this);
             _discardPile = new Deck();
+            _direction = 1;
         }
 
 

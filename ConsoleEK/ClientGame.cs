@@ -55,6 +55,7 @@ namespace Client
                     break;
                 case "playcard":
                     _process.Send(_deck.CardList[int.Parse(command[1])]);
+                    _deck.RemoveCardAt(int.Parse(command[1]));
                     break;
                 case "draw":
                     _process.Send(Requests.Draw);

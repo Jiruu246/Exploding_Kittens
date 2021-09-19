@@ -120,5 +120,10 @@ namespace ExplodingKittenLib
             _deck.AddCard(card);
         }
 
+        public void RemoveCard(_Card card)
+        {
+            _deck.RemoveCard(card);
+        }
+
     }
 }

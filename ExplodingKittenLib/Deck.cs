@@ -18,17 +18,14 @@ namespace ExplodingKittenLib
 
         public Deck(int numofp, int numofc) : this()
         {
-            //BaseSettup(numofp);
+            BaseSettup(numofp);
 
             for (int i = 0; i < numofc - numofp * 2 + 1; i++)
             {
                 _CardList.Add(_Card.GetRandom());
             }
 
-            //Shuffle();
-            _CardList.Add(_Card.CreateCard(CardType.Exploding));
-            _CardList.Add(_Card.CreateCard(CardType.Exploding));
-
+            Shuffle();
         }
 
         private void BaseSettup(int numofp)
@@ -56,9 +53,17 @@ namespace ExplodingKittenLib
             _CardList.Add(card);
         }
 
+        public void RemoveCard(_Card card)
+        {
+            _CardList.Remove(card);
+        }
         public void AddCardAt(int i, _Card card)
         {
             _CardList.Insert(i, card);
+        }
+        public void RemoveCardAt(int i)
+        {
+            _CardList.RemoveAt(i);
         }
 
         public void Merge(Deck deck)

@@ -38,38 +38,36 @@ namespace Server
             _bombDefuse = false;
         }
 
-        public void Start()
+        public void Busy()
         {
-            _network.SendSingle(_player.ClientSK, Requests.YourTurn);
-
-            while (!EndTurn)
+            if (DrawBomb)
             {
-                if(_player.Explode == true)
+                bool bombremoval = BombCountDown();
+                if (bombremoval)
                 {
-                    continue;
-                }
-                if (DrawBomb)
-                {
-                    bool bombremoval = BombCountDown();
-                    if (bombremoval)
+                    while (true)
                     {
-                        while (true)
+                        if(_bombPosition > -1)
                         {
-                            if(_bombPosition > -1)
-                            {
-                                _drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.Exploding));
-                                break;
-                            }
+                            _drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.Exploding));
+                            break;
                         }
                     }
-                    else
-                    {
-                        _player.Explode = true;
-                        _discardPile.Merge(_player.Deck);
-                    }
-                    EndTurn = true;
                 }
+                else
+                {
+                    _player.Explode = true;
+                    _player.Turn = 0;
+                    _discardPile.Merge(_player.Deck);
+                }
+
+                EndTurn = true;
             }
+        }
+
+        public void Stop()
+        {
+            EndTurn = true;
         }
 
 

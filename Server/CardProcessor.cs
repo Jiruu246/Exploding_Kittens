@@ -9,7 +9,6 @@ namespace Server
     class CardProcessor
     {
         private GameModerator _gameMod;
-        int _currentSender;
 
         public CardProcessor(GameModerator gameModerator)
         {
@@ -18,18 +17,21 @@ namespace Server
 
         public void Process(_Card card, Player player)
         {
-            _currentSender = player.Position;
+            player.RemoveCard(card);
+            //_discardPile.AddCard((_Card)data);
+
             IActivatable Acard = card as IActivatable;
-            Execute(Acard.Activate());
+            Execute(Acard.Activate(), player);
         }
 
-        public void Execute(List<Actions> actions)
+        public void Execute(List<Actions> actions, Player player)
         {
             foreach(Actions action in actions)
             {
                 switch (action)
                 {
                     case Actions.Defuse:
+                        player.Deck.Pop();
                         _gameMod.DefuseCurrentTurn();
                         break;
                 }
