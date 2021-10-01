@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ExplodingKittenLib;
+using ExplodingKittenLib.Cards;
 using System.Net.Sockets;
 
 namespace Server
@@ -32,9 +33,24 @@ namespace Server
             return player;
         }
 
-        public void RemovePlayer(Player player)
+        public void ResetTurn()
         {
-            _players.Remove(player);
+            foreach(Player player in _players)
+            {
+                if (!player.Explode)
+                {
+                    player.Turn = 1;
+                }
+                else
+                {
+                    player.Turn = 0;
+                }
+            }
+        }
+
+        public void RemovePlayerAt(int i)
+        {
+            _players.RemoveAt(i);
             // rework the position
             foreach(Player p in _players)
             {
@@ -47,12 +63,67 @@ namespace Server
             return _players.IndexOf(player);
         }
 
+        public int NumOfPlayer
+        {
+            get
+            {
+                return _players.Count;
+            }
+        }
+
         public List<Player> PlayerList
         {
             get
             {
                 return _players;
             }
+        }
+
+        public int NumOfSurvival
+        {
+            
+            get
+            {
+                int i = 0;
+                foreach(Player p in _players)
+                {
+                    if(p.Explode == false)
+                    {
+                        i++;
+                    }
+                }
+                return i;
+            }
+        }
+
+        public Player GetWinner()
+        {
+            if(NumOfSurvival == 1)
+            {
+                foreach(Player p in _players)
+                {
+                    if(p.Explode == false)
+                    {
+                        return p;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public Player GetPlayerAt(int i)
+        {
+            return _players[i];
+        }
+
+        public void GivePlayerData(int playerpos, _Card card)
+        {
+            _players[playerpos].GetCard(card);
+        }
+
+        public bool HasPlayer(Player player)
+        {
+            return _players.Contains(player);
         }
     }
 }

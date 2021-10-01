@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Server", "Server\Server.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExplodingKittenLib", "ExplodingKittenLib\ExplodingKittenLib.csproj", "{5B83199A-61E6-4A96-83B4-FEF606CC5EB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SplashKitGUI", "SplashKitGUI\SplashKitGUI.csproj", "{17CF21C2-39C8-4903-980C-28986D22474B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{5B83199A-61E6-4A96-83B4-FEF606CC5EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B83199A-61E6-4A96-83B4-FEF606CC5EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B83199A-61E6-4A96-83B4-FEF606CC5EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17CF21C2-39C8-4903-980C-28986D22474B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17CF21C2-39C8-4903-980C-28986D22474B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17CF21C2-39C8-4903-980C-28986D22474B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17CF21C2-39C8-4903-980C-28986D22474B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

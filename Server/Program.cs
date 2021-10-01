@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Threading;
 
 namespace Server
@@ -9,11 +8,10 @@ namespace Server
     {
         static void Main(string[] args)
         {
-            PlayerGroup players = new PlayerGroup();
 
-            ServerNetwork network = ServerNetwork.GetInstance();
+            ServerNetwork network = ServerNetwork.GetInstance(); //not really neccessary
 
-            GameModerator game = new GameModerator(network, players);
+            GameModerator game = new GameModerator();
 
             Thread Listen = new Thread(game.Listen);
             Listen.IsBackground = true;
@@ -36,7 +34,16 @@ namespace Server
                         network.Close();
                         break;
                     case "send":
-                        network.SendMulti(command[1], players);
+//                        network.SendMulti(command[1], players);
+                        break;
+                    case "drawpile":
+                        game.ShowDrawPile();
+                        break;
+                    case "dispile":
+                        game.ShowDisPile();
+                        break;
+                    case "playerdeck":
+                        game.ShowPlayerDeck(int.Parse(command[1]));
                         break;
                 }
 
