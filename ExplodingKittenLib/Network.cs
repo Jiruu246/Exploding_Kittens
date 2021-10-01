@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Threading;
-using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using ExplodingKittenLib;
 
 namespace ExplodingKittenLib
 {
@@ -17,7 +14,8 @@ namespace ExplodingKittenLib
 
         }
 
-        protected abstract void GenerateAddress();
+
+        public abstract void GenerateAddress();
 
         public abstract bool Connect(); // test protect
 
@@ -46,7 +44,7 @@ namespace ExplodingKittenLib
             byte[] data = new byte[2048];
             client.Receive(data);
             object message = (object)Deserialize(data);
-            Console.WriteLine(message.GetType().Name);
+            Console.WriteLine(message.GetType());
             return message;
         }
     }

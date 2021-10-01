@@ -1,32 +1,108 @@
 ﻿using System;
 using System.Text;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
+using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Numbers;
 
 namespace Server
 {
     class GameModerator
     {
-        private ServerNetwork _network;
+        private ServerNetwork _network = ServerNetwork.GetInstance();
         private PlayerGroup _playerGroup;
+        private CardProcessor _cardProc;
+        private RequestProcessor _reqProc;
+        private Deck _drawPile;
+        private Deck _discardPile;
 
-        public GameModerator(ServerNetwork network, PlayerGroup players)
+        private Player _Winner; // this could keep
+        private bool _start; // this could keep
+
+        private int _currentP;
+        private ManageTurn _currentTurn;
+
+        private int _direction;
+
+
+        public GameModerator()
         {
-            _network = network;
-            _playerGroup = players;
+            ResetGame();
+            RegisterCards();
         }
 
-        public void Execute(object data)
+        /// <summary>
+        /// tempo
+        /// </summary>
+        public void ShowDrawPile()
         {
-            switch (data.GetType().Name)
+            foreach(_Card c in _drawPile.CardList)
             {
-                case "Int32":
-                    Console.WriteLine((int)data);
-                    break;
-                case "String":
-                    Console.WriteLine((string)data);
-                    break;
+                Console.WriteLine(c);
+            }
+        }
+
+        public void ShowDisPile()
+        {
+            foreach (_Card c in _discardPile.CardList)
+            {
+                Console.WriteLine(c);
+            }
+        }
+
+        public void ShowPlayerDeck(int i)
+        {
+            Player p = _playerGroup.GetPlayerAt(i);
+
+            foreach (_Card c in p.Deck.CardList)
+            {
+                Console.WriteLine(c);
+            }
+        }
+        ///
+
+
+        /// <summary>
+        /// this need to change maybe
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="player"></param>
+        public void Execute(object data, Player player)
+        {
+
+            if (data is Numbers)
+            {
+                CardPosition pos = data as CardPosition;
+                _currentTurn.BombPosition = pos.Get;
+            }
+            else if (data is _Card)
+            {
+                Thread cardProc = new Thread(() => 
+                { 
+                _cardProc.Process((_Card)data, player);
+                });
+                cardProc.IsBackground = true;
+                cardProc.Start();
+            }
+            else if (data is Requests)
+            {
+                _reqProc.Process((Requests)data, player);
+            }
+
+        }
+
+        public void CreateGame(Player player)
+        {
+            if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
+            {
+                SetupGame(20);
+
+                _start = true;
+                Thread newgame = new Thread(StartGame);
+                newgame.IsBackground = true;
+                newgame.Start();
             }
         }
 
@@ -38,45 +114,281 @@ namespace Server
                 {
                     Socket Client = _network.Listen();
 
-                    if (Client != null)
+                    if (_start)
                     {
-                        Player player = _playerGroup.AddPlayer(Client);
+                        _network.SendSingle(Client, "The game already start");
+                        Client.Close();
+                    }
+                    else if (Client != null)
+                    {
+                        try
+                        {
+                            Player player = _playerGroup.AddPlayer(Client);
 
-                        _network.SendSingle(Client, player.Position); // send the player position
+                            _network.SendSingle(Client, player.GetPosition); // send the player position object
 
-                        Thread recieve = new Thread(() => { Receive(player); });
-                        recieve.IsBackground = true;
-                        recieve.Start();
+                            Thread recieve = new Thread(() => { Receive(player); });
+                            recieve.IsBackground = true;
+                            recieve.Start();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Console.WriteLine("disconnect bug");
+                            _network.GenerateAddress();
+                        }
 
                     }
                 }
-
             }
         }
 
-        public void Receive(Player player)
+        private void Receive(Player player)
         {
             try
             {
-                while (true)
+                while (!player.Explode) //should be put at other place???
                 {
-                    Execute(_network.GetData(player.ClientSK));
+                    Execute(_network.GetData(player.ClientSK), player);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                Console.WriteLine("Receive error!!!!!!");
                 _network.CloseClient(player.ClientSK, _playerGroup);
                 ResendPosition(); // when someone disconnect, resend the position
             }
         }
 
-        public void ResendPosition()
+        private void ResendPosition()
         {
             foreach (Player p in _playerGroup.PlayerList)
             {
-                _network.SendSingle(p.ClientSK, p.Position);
+                _network.SendSingle(p.ClientSK, p.GetPosition);
             }
+        }
+
+        private void SetupGame(int numofcard)
+        {
+            _drawPile = new Deck(_playerGroup.NumOfPlayer, numofcard);
+
+            foreach (Player player in _playerGroup.PlayerList)
+            {
+                Deck deck = new Deck();
+                deck.AddCard(_Card.CreateCard(CardType.DefuseCard));
+                for(int i = 0; i < 4; i++) //each player start with 4 card and a defuse
+                {
+                    deck.AddCard(_Card.GetRandom());
+                }
+
+                player.Deck = deck;
+                _network.SendSingle(player.ClientSK, deck);
+            }
+
+        }
+
+        public Player Winner
+        {
+            get
+            {
+                return _Winner;
+            }
+
+            set
+            {
+                _Winner = value;
+            }
+        }
+
+
+        private void StartGame()
+        {
+            try
+            {
+                while (Winner == null)
+                {
+                    ResetTurn(); //exploded player will have 0 turn
+                    for(int i = 0; i < _playerGroup.NumOfPlayer; i += Direction)
+                    {
+                        _currentP = i;
+                        Player player =_playerGroup.GetPlayerAt(i);
+                        
+                        while (player.Turn > 0)
+                        {
+
+                            _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
+
+                            _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
+
+                            while (!_currentTurn.EndTurn)
+                            {
+                                /// AFK detect
+                                if(_playerGroup.NumOfPlayer == 0)/// if everyone afk
+                                {
+                                    ResetGame();
+                                    return;
+                                }
+                                if (_playerGroup.NumOfPlayer == 1) 
+                                {
+                                    player = _playerGroup.GetPlayerAt(0);
+                                    Winner = player;
+                                    break;
+                                }
+                                else if (!_playerGroup.HasPlayer(player))
+                                {
+                                    if (i == _playerGroup.NumOfPlayer)
+                                    {
+                                        break;
+                                    }
+                                    player = _playerGroup.PlayerList[i];
+                                    _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
+                                }
+                                ///
+
+                                _currentTurn.Busy();
+                            }
+
+                            ReduceTurn(player);
+
+                            if(_playerGroup.NumOfSurvival == 1)
+                            {
+                                Winner = _playerGroup.GetWinner();
+                                break;
+                            }
+                        }
+
+                        if(Winner != null)
+                        {
+                            break;
+                        }
+                    }
+
+                }
+
+                _network.SendSingle(Winner.ClientSK, "you winnnnn!!!!!!!");
+                ResetGame();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("disconnect error");
+                ResetGame();
+            }
+
+        }
+
+
+        public void GiveTopCard(Player player)
+        {
+            _Card card = _drawPile.Pop();
+            SyncSending(player, card);
+
+            CheckBomb(card);
+        }
+
+        public void GiveBottomCard(Player player)
+        {
+            _Card card = _drawPile.PopBottom();
+            SyncSending(player, card);
+
+            CheckBomb(card);
+        }
+
+        public int CurrentPlayer
+        {
+            get
+            {
+                return _currentP;
+            }
+        }
+
+        public int Direction
+        {
+            get
+            {
+                return _direction;
+            }
+            set
+            {
+                if(value == 1 || value == -1)
+                {
+                    _direction = value;
+                }
+            }
+        }
+
+        public void ChageDirection()
+        {
+            Direction *= -1;
+            ResetTurn();
+        }
+
+        public void ReduceTurn(Player player)
+        {
+            player.Turn--;
+            _network.SendSingle(player.ClientSK, player.GetTurn);
+        }
+
+        /// <summary>
+        /// Reset alive player turn
+        /// </summary>
+        public void ResetTurn()
+        {
+            _playerGroup.ResetTurn();
+            _network.SendMulti(new Turn(1), _playerGroup);
+
+        }
+
+        private void SyncSending(Player player, _Card card)
+        {
+            _playerGroup.GivePlayerData(player.Position, card);
+            _network.SendSingle(player.ClientSK, card);
+        }
+
+        private void CheckBomb(_Card card)
+        {
+            if (card is ExplodingCard)
+            {
+                _currentTurn.DrawBomb = true;
+            }
+            else
+            {
+                _currentTurn.Stop();
+            }
+        }
+
+        public void DefuseCurrentTurn()
+        {
+            _currentTurn.BombDefuse = true;
+        }
+
+
+
+        public void SendDeny(Player player)
+        {
+            _network.SendSingle(player.ClientSK, "Deny");
+        }
+
+        public void ResetGame()
+        {
+            _Winner = null;
+            _start = false;
+            _playerGroup = new PlayerGroup();
+            _discardPile = new Deck();
+            _reqProc = new RequestProcessor(this);
+            _cardProc = new CardProcessor(this, _drawPile, _discardPile);
+            _direction = 1;
+        }
+
+
+        private void RegisterCards() // should this be here ??
+        {
+            _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
+            _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
+            _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
+            _Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
+            _Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Server
             return _network as ServerNetwork;
         }
 
-        protected override void GenerateAddress()
+        public override void GenerateAddress()
         {
             _ClientIP = new IPEndPoint(IPAddress.Any, 5555);
             _Server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
@@ -46,41 +46,20 @@ namespace Server
                 return false;
             }
         }
-        //Thread Listen = new Thread(() => {   // create thread for listen purpose
         public Socket Listen()
         {
             try
             {
-                //while (true) //listen for many client
-                //{
-                    //if (!_players.MaxPlayer())
-                    //{
                 _Server.Listen(1);
                 Socket client = _Server.Accept();
                 return client;
-
-                //
-                //Player p = _players.AddPlayer(client); // can put this out side !!!!!!!!!
-                //SendSingle(client, p.Position); // send somthing to confirm connection
-                //return p;
-                        //Thread recieve = new Thread(Receive); // create thread for client
-                        //recieve.IsBackground = true;
-                        //recieve.Start(client);
-                    //}
-                //}
             }
             catch (Exception e)
-            {   //some client close => loop error ???
+            {   
                 Console.WriteLine(e);
-                Console.WriteLine("disconnect bug");
-                GenerateAddress();
                 return null;
             }
         }
-            //});
-            //Listen.IsBackground = true;
-            //Listen.Start();
-        //}
 
         public override void Close()
         {
@@ -89,7 +68,8 @@ namespace Server
 
         public void SendSingle(Socket client, object data)
         {
-            client.Send(Serialize(data));
+            if(data != null)
+                client.Send(Serialize(data));
         }
 
         public void SendMulti(object data, PlayerGroup players)
@@ -101,57 +81,16 @@ namespace Server
             }
         }
 
-        /*public Receive(Object obj)
-        {
-            Socket client = obj as Socket;
-
-            try
-            {
-                while (true) // Always listen for receiving message
-                {
-                    GetData(client);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                CloseClient(client);
-            }
-        }*/
-
-        /*private byte[] Serialize(object obj)
-        {
-            MemoryStream stream = new MemoryStream();
-            BinaryFormatter formatter = new BinaryFormatter();
-
-            formatter.Serialize(stream, obj);
-
-            return stream.ToArray();
-        }
-
-        private object Deserialize(byte[] data)
-        {
-            MemoryStream stream = new MemoryStream(data);
-            BinaryFormatter formatter = new BinaryFormatter();
-
-            return formatter.Deserialize(stream);
-        }
-
-        public object GetData(Socket client)
-        {
-            byte[] data = new byte[2048];
-            client.Receive(data);
-            object message = (object)Deserialize(data);
-            return message;
-        }*/
-
         public void CloseClient(Socket client, PlayerGroup players)
         {
             for (int i = 0; i < players.PlayerList.Count; i++) // singleton?? passing the list
             {
-                Player player = players.PlayerList[i];
+                Player player = players.GetPlayerAt(i);
                 if (player.ClientSK == client)
-                    players.RemovePlayer(player);
+                {
+                    players.RemovePlayerAt(i);
+                    Console.WriteLine("remove success");
+                }
             }
             client.Close();
         }

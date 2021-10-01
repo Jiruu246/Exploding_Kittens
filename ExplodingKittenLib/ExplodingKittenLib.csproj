@@ -41,9 +41,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cards\CattermelonCard.cs" />
     <Compile Include="Cards\DefuseCard.cs" />
+    <Compile Include="Cards\ExplodingCard.cs" />
+    <Compile Include="Cards\NopeCard.cs" />
+    <Compile Include="Cards\SkipCard.cs" />
     <Compile Include="Cards\_Card.cs" />
+    <Compile Include="Numbers\CardPosition.cs" />
+    <Compile Include="Numbers\CurrentTurn.cs" />
+    <Compile Include="Numbers\Numbers.cs" />
+    <Compile Include="Numbers\Position.cs" />
+    <Compile Include="Numbers\Turn.cs" />
+    <Compile Include="Requests.cs" />
     <Compile Include="Deck.cs" />
+    <Compile Include="IActivatable.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

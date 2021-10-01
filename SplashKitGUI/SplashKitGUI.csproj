@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConsoleEK\Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\images\cards\" />
+    <Folder Include="Resources\bundles\" />
+  </ItemGroup>
+
+</Project>
