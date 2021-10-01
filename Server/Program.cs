@@ -9,7 +9,7 @@ namespace Server
         static void Main(string[] args)
         {
 
-            ServerNetwork network = ServerNetwork.GetInstance();
+            ServerNetwork network = ServerNetwork.GetInstance(); //not really neccessary
 
             GameModerator game = new GameModerator();
 

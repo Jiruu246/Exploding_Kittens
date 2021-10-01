@@ -13,6 +13,7 @@ namespace Client
         private Deck _deck;
         private ClientRequestProcess _reqProc;
         private ClientNumberProcess _numProc;
+        private int _currentTurn;
 
         public ClientDataProcess(Player player)
         {
@@ -37,7 +38,7 @@ namespace Client
             }
             else if (data is _Card)
             {
-                Console.WriteLine("this is a card wwooooo"); //just get a card
+                Console.WriteLine("this is a card wwooooo");
                 GetCard((_Card)data);
             }
             else if (data is Requests)
@@ -45,8 +46,6 @@ namespace Client
                 //put it in the request processor
                 _reqProc.Execute((Requests)data);
             }
-
-
         }
 
         public bool Connect()
@@ -104,6 +103,18 @@ namespace Client
         private void GetCard(_Card card)
         {
             _deck.AddCard(card);
+        }
+
+        public int CurrentTurn
+        {
+            get
+            {
+                return _currentTurn;
+            }
+            set
+            {
+                _currentTurn = value;
+            }
         }
     }
 }

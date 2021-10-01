@@ -40,8 +40,13 @@ namespace Server
 
         public void Busy()
         {
+            if (_player.Turn == 0)
+            {
+                EndTurn = true;
+            }
             if (DrawBomb)
             {
+                _bombDefuse = false;
                 bool bombremoval = BombCountDown();
                 if (bombremoval)
                 {
@@ -49,7 +54,7 @@ namespace Server
                     {
                         if(_bombPosition > -1)
                         {
-                            _drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.Exploding));
+                            _drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.ExplodingCard));
                             break;
                         }
                     }
@@ -123,7 +128,9 @@ namespace Server
                 _bombDefuse = value;
             }
         }
-
+        /// <summary>
+        /// ????
+        /// </summary>
         public int BombPosition
         {
             get

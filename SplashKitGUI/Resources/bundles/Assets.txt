@@ -1,0 +1,14 @@
+// BITMAP,name,filename
+
+//Background
+BITMAP,gamebackground,background/gamebg.png
+BITMAP,lobby,background/lobby.png
+BITMAP,menu,background/menubg.jpg
+
+//Buttons
+BITMAP,startbttn,buttons/start.png
+
+//Cards (size 260x280)
+BITMAP,backside,cards/backside.png
+BITMAP,DefuseCard,cards/DefuseCard.png
+

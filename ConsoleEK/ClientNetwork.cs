@@ -5,7 +5,7 @@ using ExplodingKittenLib;
 
 namespace Client
 {
-    public class ClientNetwork : Network
+    public class ClientNetwork : Network //singleton
     {
         private IPEndPoint _ServerIP;
         private Socket _client;

@@ -23,6 +23,9 @@ namespace Client
                 case "Turn":
                     _process.SetPlayerTurn(number.Get);
                     break;
+                case "CurrentTurn":
+                    _process.CurrentTurn = number.Get;
+                    break;
             }
         }
     }

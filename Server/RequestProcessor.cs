@@ -9,7 +9,7 @@ namespace Server
     {
         GameModerator _gameMod;
         int _currentSender;
-        Requests _currnetReq;
+
         public RequestProcessor(GameModerator gameMod)
         {
             _currentSender = -1;

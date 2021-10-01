@@ -79,9 +79,12 @@ namespace Server
             }
             else if (data is _Card)
             {
-                //shouldnt do this out here
-
+                Thread cardProc = new Thread(() => 
+                { 
                 _cardProc.Process((_Card)data, player);
+                });
+                cardProc.IsBackground = true;
+                cardProc.Start();
             }
             else if (data is Requests)
             {
@@ -94,7 +97,7 @@ namespace Server
         {
             if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
             {
-                SettupGame(20);
+                SetupGame(20);
 
                 _start = true;
                 Thread newgame = new Thread(StartGame);
@@ -166,14 +169,14 @@ namespace Server
             }
         }
 
-        private void SettupGame(int numofcard)
+        private void SetupGame(int numofcard)
         {
             _drawPile = new Deck(_playerGroup.NumOfPlayer, numofcard);
 
             foreach (Player player in _playerGroup.PlayerList)
             {
                 Deck deck = new Deck();
-                deck.AddCard(_Card.CreateCard(CardType.Defuse));
+                deck.AddCard(_Card.CreateCard(CardType.DefuseCard));
                 for(int i = 0; i < 4; i++) //each player start with 4 card and a defuse
                 {
                     deck.AddCard(_Card.GetRandom());
@@ -216,7 +219,7 @@ namespace Server
 
                             _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
 
-                            _network.SendSingle(player.ClientSK, Requests.YourTurn);
+                            _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
 
                             while (!_currentTurn.EndTurn)
                             {
@@ -239,7 +242,7 @@ namespace Server
                                         break;
                                     }
                                     player = _playerGroup.PlayerList[i];
-                                    _network.SendSingle(player.ClientSK, Requests.YourTurn);
+                                    _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
                                 }
                                 ///
 
@@ -264,6 +267,7 @@ namespace Server
                 }
 
                 _network.SendSingle(Winner.ClientSK, "you winnnnn!!!!!!!");
+                ResetGame();
             }
             catch (Exception e)
             {
@@ -275,7 +279,7 @@ namespace Server
         }
 
 
-        public void GiveTopCard(Player player) //change return type
+        public void GiveTopCard(Player player)
         {
             _Card card = _drawPile.Pop();
             SyncSending(player, card);
@@ -289,8 +293,8 @@ namespace Server
             SyncSending(player, card);
 
             CheckBomb(card);
-
         }
+
         public int CurrentPlayer
         {
             get
@@ -340,8 +344,6 @@ namespace Server
         {
             _playerGroup.GivePlayerData(player.Position, card);
             _network.SendSingle(player.ClientSK, card);
-
-            //return card is ExplodingCard;
         }
 
         private void CheckBomb(_Card card)
@@ -352,7 +354,7 @@ namespace Server
             }
             else
             {
-                _currentTurn.EndTurn = true;
+                _currentTurn.Stop();
             }
         }
 
@@ -373,19 +375,20 @@ namespace Server
             _Winner = null;
             _start = false;
             _playerGroup = new PlayerGroup();
-            _reqProc = new RequestProcessor(this);
-            _cardProc = new CardProcessor(this);
             _discardPile = new Deck();
+            _reqProc = new RequestProcessor(this);
+            _cardProc = new CardProcessor(this, _drawPile, _discardPile);
             _direction = 1;
         }
 
 
-        private void RegisterCards()
+        private void RegisterCards() // should this be here ??
         {
-            _Card.RegisterCard(CardType.Exploding, typeof(ExplodingCard));
-            _Card.RegisterCard(CardType.Defuse, typeof(DefuseCard));
-            _Card.RegisterCard(CardType.Skip, typeof(SkipCard));
-            _Card.RegisterCard(CardType.Cattermelon, typeof(CattermelonCard));
+            _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
+            _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
+            _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
+            _Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
+            _Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
         }
     }
 }

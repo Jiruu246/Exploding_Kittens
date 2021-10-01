@@ -14,6 +14,7 @@ namespace ExplodingKittenLib
 
         }
 
+
         public abstract void GenerateAddress();
 
         public abstract bool Connect(); // test protect

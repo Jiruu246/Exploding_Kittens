@@ -26,17 +26,18 @@ namespace ExplodingKittenLib
             }
 
             Shuffle();
+            _CardList.Add(_Card.CreateCard(CardType.ExplodingCard));
         }
 
         private void BaseSettup(int numofp)
         {
-            for (int i = 0; i < numofp; i++)
-            {
-                _CardList.Add(_Card.CreateCard(CardType.Exploding));
-            }
             for (int i = 0; i < numofp - 1; i++)
             {
-                _CardList.Add(_Card.CreateCard(CardType.Defuse));
+                _CardList.Add(_Card.CreateCard(CardType.ExplodingCard));
+            }
+            for (int i = 0; i < numofp; i++)
+            {
+                _CardList.Add(_Card.CreateCard(CardType.DefuseCard));
             }
         }
 
@@ -48,6 +49,11 @@ namespace ExplodingKittenLib
             }
         }
 
+
+        public _Card GetCardAt(int i)
+        {
+            return _CardList[i];
+        }
         public void AddCard(_Card card)
         {
             _CardList.Add(card);
@@ -55,7 +61,13 @@ namespace ExplodingKittenLib
 
         public void RemoveCard(_Card card)
         {
-            _CardList.Remove(card);
+            for(int i = 0; i < _CardList.Count; i++)
+            {
+                if(CardList[i].ID == card.ID)
+                {
+                    RemoveCardAt(i);
+                }
+            }
         }
         public void AddCardAt(int i, _Card card)
         {
@@ -101,6 +113,14 @@ namespace ExplodingKittenLib
             get
             {
                 return _CardList.Any();
+            }
+        }
+
+        public int NumOfCard
+        {
+            get
+            {
+                return _CardList.Count;
             }
         }
 
