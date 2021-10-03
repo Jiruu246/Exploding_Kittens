@@ -12,6 +12,7 @@
   <ItemGroup>
     <Folder Include="Resources\images\cards\" />
     <Folder Include="Resources\bundles\" />
+    <Folder Include="Resources\images\avatars\" />
   </ItemGroup>
 
 </Project>

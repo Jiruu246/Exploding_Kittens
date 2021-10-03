@@ -20,8 +20,6 @@ namespace SplashKitGUI.Screens
         public void Draw()
         {
             SplashKit.DrawBitmap("lobby", 0, 0);
-            SplashKit.DrawBitmap("startbttn", 650, 200);
-
         }
 
         public void ButtonDown()

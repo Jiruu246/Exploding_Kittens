@@ -75,7 +75,7 @@ namespace ExplodingKittenLib.Cards
             return (_Card)Activator.CreateInstance(_CardClassRegistry[name]);
         }
 
-        public static CardType GetKey(Type t)
+        private CardType GetKey(Type t)
         {
             return _CardClassRegistry.FirstOrDefault(entry =>
             EqualityComparer<Type>.Default.Equals(entry.Value, t)).Key;
@@ -83,7 +83,7 @@ namespace ExplodingKittenLib.Cards
 
         public static _Card GetRandom()
         {
-            Array value = CardType.GetValues(typeof(CardType));
+            Array value = Enum.GetValues(typeof(CardType));
             Random random = new Random();
             CardType card = (CardType)value.GetValue(random.Next(2, value.Length));
 

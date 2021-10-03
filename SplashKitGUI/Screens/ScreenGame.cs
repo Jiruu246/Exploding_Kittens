@@ -8,20 +8,19 @@ namespace SplashKitGUI.Screens
 {
     class ScreenGame : ScreenState
     {
-        private ClientGame _game;
         public ScreenGame()
         {
-            _game = new ClientGame();
+
         }
         public void Update()
         {
-            _game.Update();
+            ClientGame.GetInstance.Update();
         }
 
         public void Draw()
         {
             SplashKit.DrawBitmap("gamebackground", 0, 0);
-            _game.Draw(); 
+            ClientGame.GetInstance.Draw(); 
 
         }
 
@@ -32,7 +31,7 @@ namespace SplashKitGUI.Screens
                 double X = SplashKit.MousePosition().X;
                 double Y = SplashKit.MousePosition().Y;
 
-                _game.ChooseCardAt(X, Y);
+                ClientGame.GetInstance.ChooseCardAt(X, Y);
             }
         }
     }

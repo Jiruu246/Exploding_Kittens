@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SplashKitSDK;
 
 namespace SplashKitGUI.Screens
 {
@@ -48,6 +49,14 @@ namespace SplashKitGUI.Screens
         public void ButtonDown()
         {
             _state.ButtonDown();
+        }
+
+        public bool MouseInZone(double x, double y, double width, double height)
+        {
+            double X = SplashKit.MousePosition().X;
+            double Y = SplashKit.MousePosition().Y;
+
+            return ((X >= x && X <= x + width) && (Y >= y && Y <= y + height));
         }
     }
 }

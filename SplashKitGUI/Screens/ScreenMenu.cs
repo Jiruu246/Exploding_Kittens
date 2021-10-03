@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Client;
 using SplashKitSDK;
 
 namespace SplashKitGUI.Screens
@@ -28,7 +29,12 @@ namespace SplashKitGUI.Screens
         {
             if (SplashKit.MouseClicked(MouseButton.LeftButton))
             {
-                Screen.GetInstance.ChangeState(new ScreenLobby());
+                if(Screen.GetInstance.MouseInZone(650, 200, 299, 136))
+                {
+                    //connect after press start
+                    ClientGame.GetInstance.Connect();
+                    Screen.GetInstance.ChangeState(new ScreenLobby());
+                }
             }
         }
     }

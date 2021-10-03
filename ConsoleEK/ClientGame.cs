@@ -8,23 +8,24 @@ using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
-    public class ClientGame //the game engine
+    public class ClientGame //the game engine (singleton)
     {
+        private static ClientGame _game;
         private string prom;
         private Player _player;
         private ClientDataProcess _process;
         private List<int> _playernumcards;
-        private Deck _deck; //maybe its nescessary
+        private Deck _deck;
         private int _currentTurn;
 
-        public ClientGame()
+        private ClientGame()
         {
             _currentTurn = 0;
             _player = new Player();
             _deck = _player.Deck;
             _process = new ClientDataProcess(_player);
 
-            /// test gui
+            /*/// test gui
             _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
             _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
             _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
@@ -34,8 +35,20 @@ namespace Client
             {
                 _deck.AddCard(_Card.GetRandom());
             }
-            ///
+            ///*/
 
+        }
+
+        public static ClientGame GetInstance
+        {
+            get
+            {
+                if(_game == null)
+                {
+                    _game = new ClientGame();
+                }
+                return _game;
+            }
         }
 
         /// <summary>
@@ -102,9 +115,9 @@ namespace Client
         /// <summary>
         /// for GUI for init the game
         /// </summary>
-        public void StartGame()
+        public void Connect()
         {
-            throw new NotImplementedException();
+            _process.Connect();
         }
 
         /// length of screen 1600
