@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 using ExplodingKittenLib.Cards;
-using ExplodingKittenLib.Numbers;
 
 namespace ExplodingKittenLib
 {
@@ -11,17 +10,18 @@ namespace ExplodingKittenLib
     {
         private Deck _deck;
         private Socket _clientSK;
-        private Position _position;
+        private int _position;
         private bool _roomMaster;
-        private Turn _turn;
+        private int _turn;
         private bool _explode;
+        //public string Name { get; set; }
 
         public Player()
         {
-            _position = new Position(0);
+            _position = 0;
             _deck = new Deck();
             _roomMaster = false;
-            _turn = new Turn(1);
+            _turn = 1;
             _explode = false;
         }
 
@@ -29,12 +29,12 @@ namespace ExplodingKittenLib
         {
             get
             {
-                return _position.Get;
+                return _position;
             }
             set
             {
-                _position.Get = value;
-                if (_position.Get == 0)
+                _position = value;
+                if (_position == 0)
                     _roomMaster = true;
                 else
                     _roomMaster = false;
@@ -77,28 +77,12 @@ namespace ExplodingKittenLib
         {
             get
             {
-                return _turn.Get;
+                return _turn;
             }
 
             set
             {
-                _turn.Get = value;
-            }
-        }
-
-        public Turn GetTurn
-        {
-            get
-            {
-                return _turn;
-            }
-        }
-
-        public Position GetPosition
-        {
-            get
-            {
-                return _position;
+                _turn = value;
             }
         }
 
@@ -112,6 +96,14 @@ namespace ExplodingKittenLib
             set
             {
                 _explode = value;
+            }
+        }
+
+        public int NumOfCard
+        {
+            get
+            {
+                return _deck.NumOfCard;
             }
         }
 

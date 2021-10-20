@@ -15,14 +15,17 @@ namespace Client
             GenerateAddress();
         }
 
-        public static ClientNetwork GetInstance()
+        public static ClientNetwork GetInstance
         {
-            if (_network == null)
+            get
             {
-                _network = new ClientNetwork();
-            }
+                if (_network == null)
+                {
+                    _network = new ClientNetwork();
+                }
 
-            return _network as ClientNetwork;
+                return _network as ClientNetwork;
+            }
         }
 
         public override void GenerateAddress()

@@ -33,6 +33,7 @@ namespace Client
         public abstract void Update();
         public abstract void Draw();
         public abstract void DrawCard(_Card card);
+        public abstract void DrawPlayerInLobby(PlayerInfo playerinf);
         public abstract void ButtonDown();
         public abstract bool ExitGame();
     }

@@ -11,7 +11,7 @@ namespace Server
         private bool _endTurn;
         private bool _drawBomb;
         private bool _bombDefuse;
-        private ServerNetwork _network = ServerNetwork.GetInstance();
+        //private ServerNetwork _network = ServerNetwork.GetInstance;
         private Player _player;
 
 
@@ -85,6 +85,7 @@ namespace Server
                 Console.WriteLine(i); //remove later
                 if (BombDefuse)
                 {
+                    throw new NotImplementedException("Not implement defuse index");
                     return true;
                 }
             }

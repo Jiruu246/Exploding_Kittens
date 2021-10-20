@@ -41,7 +41,7 @@ namespace ExplodingKittenLib
 
         public object GetData(Socket client)
         {
-            byte[] data = new byte[2048];
+            byte[] data = new byte[1024*20];
             client.Receive(data);
             object message = (object)Deserialize(data);
             Console.WriteLine(message.GetType());

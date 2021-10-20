@@ -16,14 +16,17 @@ namespace Server
             Connect();
         }
 
-        public static ServerNetwork GetInstance()
+        public static ServerNetwork GetInstance
         {
-            if (_network == null)
+            get
             {
-                _network = new ServerNetwork();
-            }
+                if (_network == null)
+                {
+                    _network = new ServerNetwork();
+                }
 
-            return _network as ServerNetwork;
+                return _network as ServerNetwork;
+            }
         }
 
         public override void GenerateAddress()
@@ -77,7 +80,6 @@ namespace Server
             foreach(Player player in players.PlayerList)
             {
                 SendSingle(player.ClientSK, data);
-                Console.WriteLine("finish sending2");
             }
         }
 

@@ -9,17 +9,17 @@ namespace Server
 {
     class CardProcessor
     {
-        private GameModerator _gameMod;
+        private Game _game;
         private Deck _drawPile;
         private Deck _disPile;
         private int _currentSender;
         private bool _nopeSend;
 
-        public CardProcessor(GameModerator gameModerator, Deck drawPile, Deck disPile)
+        public CardProcessor(Game game, Deck drawPile, Deck disPile)
         {
             _nopeSend = false;
             _currentSender = -1;
-            _gameMod = gameModerator;
+            _game = game;
             _drawPile = drawPile;
             _disPile = disPile;
         }
@@ -36,7 +36,7 @@ namespace Server
                     IActivatable Acard = card as IActivatable;
                     Execute(Acard.Activate(), player);
                 }
-                else if(_gameMod.CurrentPlayer == _currentSender)
+                else if(_game.CurrentPlayer == _currentSender)
                 {
                     player.RemoveCard(card);
                     _disPile.AddCard(card);
@@ -49,7 +49,7 @@ namespace Server
                 }
                 else
                 {
-                    _gameMod.SendDeny(player);
+                    _game.SendDeny(player);
                     return;
                 }
             }
@@ -79,13 +79,13 @@ namespace Server
                 {
                     case Actions.Defuse:
                         player.Deck.Pop();
-                        _gameMod.DefuseCurrentTurn();
+                        _game.DefuseCurrentTurn();
                         break;
                     case Actions.Nope:
                         _nopeSend = true;
                         break;
                     case Actions.Skip:
-                        _gameMod.ReduceTurn(player);
+                        _game.ReduceTurn(player);
                         break;
                 }
             }

@@ -13,6 +13,8 @@
     <Folder Include="Resources\images\cards\" />
     <Folder Include="Resources\bundles\" />
     <Folder Include="Resources\images\avatars\" />
+    <Folder Include="Resources\fonts\" />
+    <Folder Include="Resources\images\elements\" />
   </ItemGroup>
 
 </Project>

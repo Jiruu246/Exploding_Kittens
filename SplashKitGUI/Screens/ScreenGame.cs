@@ -14,13 +14,14 @@ namespace SplashKitGUI.Screens
         }
         public void Update()
         {
-            ClientGame.GetInstance.Update();
+            ClientGame.GetInstance.UpdateHand();
         }
 
         public void Draw()
         {
             SplashKit.DrawBitmap("gamebackground", 0, 0);
-            ClientGame.GetInstance.Draw(); 
+            ClientGame.GetInstance.DrawHand();
+            SplashKit.DrawBitmap("playCard", 1300, 460);
 
         }
 
@@ -30,8 +31,10 @@ namespace SplashKitGUI.Screens
             {
                 double X = SplashKit.MousePosition().X;
                 double Y = SplashKit.MousePosition().Y;
-
-                ClientGame.GetInstance.ChooseCardAt(X, Y);
+                if(Y > 530)
+                {
+                    ClientGame.GetInstance.ChooseCardAt(X, Y);
+                }
             }
         }
     }

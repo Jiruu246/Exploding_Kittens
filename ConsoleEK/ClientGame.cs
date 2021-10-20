@@ -4,39 +4,38 @@ using System.Text;
 using System.Linq;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
-using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
-    public class ClientGame //the game engine (singleton)
+    public class ClientGame
     {
         private static ClientGame _game;
         private string prom;
         private Player _player;
         private ClientDataProcess _process;
-        private List<int> _playernumcards;
-        private Deck _deck;
+        private Deck _deck; //remove it
         private int _currentTurn;
+        public bool GameStart { get; set; }
+        public bool GameFound { get; set; }
 
         private ClientGame()
         {
+            GameFound = false;
+            GameStart = false;
             _currentTurn = 0;
             _player = new Player();
             _deck = _player.Deck;
             _process = new ClientDataProcess(_player);
 
-            /*/// test gui
-            _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
-            _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
-            _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
-            _Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
-            _Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
-            for (int i = 0; i < 9; i++)
-            {
-                _deck.AddCard(_Card.GetRandom());
-            }
-            ///*/
-
+            //_Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
+            //_Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
+            //_Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
+            //_Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
+            //_Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
+            //for (int i = 0; i < 9; i++)
+            //{
+            //    _deck.AddCard(_Card.GetRandom());
+            //}
         }
 
         public static ClientGame GetInstance
@@ -54,7 +53,7 @@ namespace Client
         /// <summary>
         /// for console app
         /// </summary>
-        public void StartConsole()
+        public void RunConsole()
         {
             prom = Console.ReadLine();
 
@@ -75,7 +74,7 @@ namespace Client
                     Console.WriteLine(_player.Position);
                     break;
                 case "start":
-                    _process.Send(Requests.Start);
+                    StartMatch();
                     break;
                 case "mydeck":
                     foreach(_Card card in _deck.CardList)
@@ -105,23 +104,32 @@ namespace Client
                     _process.Send(Requests.Draw);
                     break;
                 case "cardpos":
-                    _process.Send(new CardPosition(int.Parse(command[1])));
+                    //_process.Send(new CardPosition(int.Parse(command[1])));
                     break;
             }
 
         }
 
-
         /// <summary>
         /// for GUI for init the game
         /// </summary>
-        public void Connect()
+        public bool FindMatch()
         {
-            _process.Connect();
+            bool result = _process.Connect();
+            if (result)
+            {
+                GameFound = true;
+                Console.WriteLine("game found");
+            }
+            return result;
+        }
+        public void StartMatch()
+        {
+            _process.Send(Requests.Start);
         }
 
         /// length of screen 1600
-        public void Update()
+        public void UpdateHand()
         {
             if (_deck.DeckNotEmpty)
             {
@@ -149,7 +157,7 @@ namespace Client
 
         }
 
-        public void Draw()
+        public void DrawHand()
         {
             ///draw the whole deck
             foreach(_Card card in _deck.CardList)
@@ -158,8 +166,17 @@ namespace Client
             }
         }
 
-        public void ButtonDown()
+        public void DrawPlayerInLobby()
         {
+            UIAdapter.GetInstance.DrawPlayerInLobby(PlayerInfo.GetInstance);
+        }
+
+        public int PlayerPos
+        {
+            get
+            {
+                return _player.Position;
+            }
         }
         public void ChooseCardAt(double x, double y)
         {

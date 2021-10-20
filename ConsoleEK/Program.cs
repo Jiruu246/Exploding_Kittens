@@ -10,7 +10,7 @@ namespace Client
 
             while (true)
             {
-                ClientGame.GetInstance.StartConsole();
+                ClientGame.GetInstance.RunConsole();
             }
         }
     }

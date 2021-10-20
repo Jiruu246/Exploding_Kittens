@@ -32,7 +32,7 @@ namespace SplashKitGUI.Screens
                 if(Screen.GetInstance.MouseInZone(650, 200, 299, 136))
                 {
                     //connect after press start
-                    ClientGame.GetInstance.Connect();
+                    //ClientGame.GetInstance.Connect();
                     Screen.GetInstance.ChangeState(new ScreenLobby());
                 }
             }

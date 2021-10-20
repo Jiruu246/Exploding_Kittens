@@ -2,31 +2,28 @@
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
-using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
     class ClientDataProcess //facade pattern
     {
-        private ClientNetwork _network = ClientNetwork.GetInstance();
+        private ClientNetwork _network = ClientNetwork.GetInstance;
         private Player _player;
         private Deck _deck;
         private ClientRequestProcess _reqProc;
-        private ClientNumberProcess _numProc;
         private int _currentTurn;
 
         public ClientDataProcess(Player player)
         {
             _player = player;
-            _deck = _player.Deck;
+            _deck = player.Deck;
             _reqProc = new ClientRequestProcess();
-            _numProc = new ClientNumberProcess(this);
         }
         public void Execute(object data)
         {
-            if (data is Numbers)
+            if (data is MatchInfo)
             {
-                _numProc.Execute((Numbers)data);
+                Extract((MatchInfo)data);
             }
             else if (data is String)
             {
@@ -43,7 +40,6 @@ namespace Client
             }
             else if (data is Requests)
             {
-                //put it in the request processor
                 _reqProc.Execute((Requests)data);
             }
         }
@@ -80,8 +76,9 @@ namespace Client
                     Execute(_network.GetData(_player.ClientSK));
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 _network.Close();
             }
         }
@@ -115,6 +112,13 @@ namespace Client
             {
                 _currentTurn = value;
             }
+        }
+
+        private void Extract(MatchInfo info)
+        {
+            //info.GetMyData(_player);
+            _player.Position = info.MyPos;
+            PlayerInfo.GetInstance.UpdatePlayer(info);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using ExplodingKittenLib.Numbers;
 
 namespace Client
 {
@@ -13,7 +12,7 @@ namespace Client
             _process = process;
         }
 
-        public void Execute(Numbers number)
+        /*public void Execute(Numbers number)
         {
             switch (number.GetType().Name)
             {
@@ -27,6 +26,6 @@ namespace Client
                     _process.CurrentTurn = number.Get;
                     break;
             }
-        }
+        }*/
     }
 }

@@ -9,11 +9,11 @@ namespace Server
         static void Main(string[] args)
         {
 
-            ServerNetwork network = ServerNetwork.GetInstance(); //not really neccessary
+            ServerNetwork network = ServerNetwork.GetInstance;
 
             GameModerator game = new GameModerator();
 
-            Thread Listen = new Thread(game.Listen);
+            Thread Listen = new Thread(game.ListenForPlayer);
             Listen.IsBackground = true;
             Listen.Start();
 
@@ -34,7 +34,7 @@ namespace Server
                         network.Close();
                         break;
                     case "send":
-//                        network.SendMulti(command[1], players);
+                        game.Send(command[1]);
                         break;
                     case "drawpile":
                         game.ShowDrawPile();

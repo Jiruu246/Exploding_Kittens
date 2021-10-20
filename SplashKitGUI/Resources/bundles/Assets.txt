@@ -7,8 +7,26 @@ BITMAP,menu,background/menubg.jpg
 
 //Buttons
 BITMAP,startbttn,buttons/start.png
+BITMAP,okbttn,buttons/okbttn.png
+BITMAP,findmatch,buttons/findmatch.png
+BITMAP,startMatch,buttons/startMatch.png
+BITMAP,playCard,buttons/playCard.png
 
 //Cards (size 260x280)
 BITMAP,backside,cards/backside.png
 BITMAP,DefuseCard,cards/DefuseCard.png
 
+//Avatar
+BITMAP,avatar1,avatars/avatar1.png
+BITMAP,avatar2,avatars/avatar2.png
+BITMAP,avatar3,avatars/avatar3.png
+BITMAP,avatar4,avatars/avatar4.png
+BITMAP,avatar5,avatars/avatar5.png
+
+//Other elements
+BITMAP,namePlaceholder,elements/namePlaceholder.png
+BITMAP,playerholder,elements/playerholder.png
+BITMAP,idvholder,elements/idvholder.png
+
+//FONT
+FONT,lobby_player_text,Minecraft.ttf,30

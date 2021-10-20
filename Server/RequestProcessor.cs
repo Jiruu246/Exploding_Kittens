@@ -8,12 +8,14 @@ namespace Server
     class RequestProcessor
     {
         GameModerator _gameMod;
+        Game _game;
         int _currentSender;
 
-        public RequestProcessor(GameModerator gameMod)
+        public RequestProcessor(GameModerator gameMod, Game game)
         {
             _currentSender = -1;
             _gameMod = gameMod;
+            _game = game;
         }
         public void Process(Requests request, Player player)
         {
@@ -21,12 +23,15 @@ namespace Server
             switch (request)
             {
                 case Requests.Start:
-                    _gameMod.CreateGame(player);
+                    if (player.RoomMaster)
+                    {
+                    _gameMod.CreateGame();
+                    }
                     break;
                 case Requests.Draw:
-                    if (_gameMod.CurrentPlayer == _currentSender)
+                    if (_game.CurrentPlayer == _currentSender)
                     {
-                        _gameMod.GiveTopCard(player);
+                        _game.GiveTopCard(player);
                     }
                     else
                         _gameMod.SendDeny(player);

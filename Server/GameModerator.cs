@@ -5,40 +5,40 @@ using System.Net.Sockets;
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
-using ExplodingKittenLib.Numbers;
 
 namespace Server
 {
     class GameModerator
     {
-        private ServerNetwork _network = ServerNetwork.GetInstance();
+        private ServerNetwork _network = ServerNetwork.GetInstance;
         private PlayerGroup _playerGroup;
-        private CardProcessor _cardProc;
+        private Game _game;
         private RequestProcessor _reqProc;
-        private Deck _drawPile;
-        private Deck _discardPile;
 
-        private Player _Winner; // this could keep
-        private bool _start; // this could keep
-
-        private int _currentP;
-        private ManageTurn _currentTurn;
-
-        private int _direction;
-
+        //private CardProcessor _cardProc;
+        //private Deck _drawPile;
+        //private Deck _discardPile;
+        //private Player _Winner; // this could keep
+        //private bool _start; // this could keep
+        //private int _currentP;
+        //private ManageTurn _currentTurn;
+        //private int _direction;
 
         public GameModerator()
         {
-            ResetGame();
-            RegisterCards();
+            _playerGroup = new PlayerGroup();
+            _game = new Game();
+            _reqProc = new RequestProcessor(this, _game);
+            //ResetGame();
+            //RegisterCards();
         }
 
         /// <summary>
-        /// tempo
+        /// tempo for testing
         /// </summary>
         public void ShowDrawPile()
         {
-            foreach(_Card c in _drawPile.CardList)
+            foreach(_Card c in _game.DrawPile.CardList)
             {
                 Console.WriteLine(c);
             }
@@ -46,7 +46,7 @@ namespace Server
 
         public void ShowDisPile()
         {
-            foreach (_Card c in _discardPile.CardList)
+            foreach (_Card c in _game.DiscardPile.CardList)
             {
                 Console.WriteLine(c);
             }
@@ -61,6 +61,11 @@ namespace Server
                 Console.WriteLine(c);
             }
         }
+
+        public void Send(string data)
+        {
+            _network.SendMulti(data, _playerGroup);
+        }
         ///
 
 
@@ -71,17 +76,11 @@ namespace Server
         /// <param name="player"></param>
         public void Execute(object data, Player player)
         {
-
-            if (data is Numbers)
-            {
-                CardPosition pos = data as CardPosition;
-                _currentTurn.BombPosition = pos.Get;
-            }
-            else if (data is _Card)
+            if (data is _Card)
             {
                 Thread cardProc = new Thread(() => 
                 { 
-                _cardProc.Process((_Card)data, player);
+                _game.ProcessCard((_Card)data, player);
                 });
                 cardProc.IsBackground = true;
                 cardProc.Start();
@@ -90,51 +89,62 @@ namespace Server
             {
                 _reqProc.Process((Requests)data, player);
             }
-
+            else if(data is string)
+            {
+                Console.WriteLine((string)data);
+            }
         }
 
-        public void CreateGame(Player player)
+        public void CreateGame()
         {
-            if (player.RoomMaster && _playerGroup.NumOfPlayer > 1)
+            if (_playerGroup.NumOfPlayer > 1)
             {
-                SetupGame(20);
-
-                _start = true;
-                Thread newgame = new Thread(StartGame);
+                _game.NewGame(_playerGroup, 20);
+                foreach (Player p in _playerGroup.PlayerList)
+                {
+                    _network.SendSingle(p.ClientSK, Requests.Start);
+                }
+                
+                Thread newgame = new Thread(_game.StartGame);
                 newgame.IsBackground = true;
                 newgame.Start();
             }
         }
 
-        public void Listen()
+        public void ListenForPlayer()
         {
+
             while (true)
             {
                 if (!_playerGroup.MaxPlayer())
                 {
+
                     Socket Client = _network.Listen();
 
-                    if (_start)
+                    if (_game.Start)
                     {
-                        _network.SendSingle(Client, "The game already start");
+                        _network.SendSingle(Client, "The game already start"); //change it to request
                         Client.Close();
                     }
                     else if (Client != null)
                     {
                         try
                         {
-                            Player player = _playerGroup.AddPlayer(Client);
+                            Player newplayer =_playerGroup.AddPlayer(Client);
 
-                            _network.SendSingle(Client, player.GetPosition); // send the player position object
+                            foreach(Player player in _playerGroup.PlayerList)
+                            {
+                                MatchInfo data = new MatchInfo(_playerGroup.PlayerList, player.Position);
+                                _network.SendSingle(player.ClientSK, data);
+                            }
 
-                            Thread recieve = new Thread(() => { Receive(player); });
+                            Thread recieve = new Thread(() => { Receive(newplayer); });
                             recieve.IsBackground = true;
                             recieve.Start();
                         }
                         catch (Exception e)
                         {
                             Console.WriteLine(e);
-                            Console.WriteLine("disconnect bug");
                             _network.GenerateAddress();
                         }
 
@@ -147,7 +157,7 @@ namespace Server
         {
             try
             {
-                while (!player.Explode) //should be put at other place???
+                while (!player.Explode)
                 {
                     Execute(_network.GetData(player.ClientSK), player);
                 }
@@ -165,230 +175,212 @@ namespace Server
         {
             foreach (Player p in _playerGroup.PlayerList)
             {
-                _network.SendSingle(p.ClientSK, p.GetPosition);
+                MatchInfo data = new MatchInfo(_playerGroup.PlayerList, p.Position);
+                _network.SendSingle(p.ClientSK, data);
             }
         }
-
-        private void SetupGame(int numofcard)
-        {
-            _drawPile = new Deck(_playerGroup.NumOfPlayer, numofcard);
-
-            foreach (Player player in _playerGroup.PlayerList)
-            {
-                Deck deck = new Deck();
-                deck.AddCard(_Card.CreateCard(CardType.DefuseCard));
-                for(int i = 0; i < 4; i++) //each player start with 4 card and a defuse
-                {
-                    deck.AddCard(_Card.GetRandom());
-                }
-
-                player.Deck = deck;
-                _network.SendSingle(player.ClientSK, deck);
-            }
-
-        }
-
-        public Player Winner
-        {
-            get
-            {
-                return _Winner;
-            }
-
-            set
-            {
-                _Winner = value;
-            }
-        }
-
-
-        private void StartGame()
-        {
-            try
-            {
-                while (Winner == null)
-                {
-                    ResetTurn(); //exploded player will have 0 turn
-                    for(int i = 0; i < _playerGroup.NumOfPlayer; i += Direction)
-                    {
-                        _currentP = i;
-                        Player player =_playerGroup.GetPlayerAt(i);
-                        
-                        while (player.Turn > 0)
-                        {
-
-                            _currentTurn = new ManageTurn(player, _drawPile, _discardPile);
-
-                            _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
-
-                            while (!_currentTurn.EndTurn)
-                            {
-                                /// AFK detect
-                                if(_playerGroup.NumOfPlayer == 0)/// if everyone afk
-                                {
-                                    ResetGame();
-                                    return;
-                                }
-                                if (_playerGroup.NumOfPlayer == 1) 
-                                {
-                                    player = _playerGroup.GetPlayerAt(0);
-                                    Winner = player;
-                                    break;
-                                }
-                                else if (!_playerGroup.HasPlayer(player))
-                                {
-                                    if (i == _playerGroup.NumOfPlayer)
-                                    {
-                                        break;
-                                    }
-                                    player = _playerGroup.PlayerList[i];
-                                    _network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
-                                }
-                                ///
-
-                                _currentTurn.Busy();
-                            }
-
-                            ReduceTurn(player);
-
-                            if(_playerGroup.NumOfSurvival == 1)
-                            {
-                                Winner = _playerGroup.GetWinner();
-                                break;
-                            }
-                        }
-
-                        if(Winner != null)
-                        {
-                            break;
-                        }
-                    }
-
-                }
-
-                _network.SendSingle(Winner.ClientSK, "you winnnnn!!!!!!!");
-                ResetGame();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Console.WriteLine("disconnect error");
-                ResetGame();
-            }
-
-        }
-
-
-        public void GiveTopCard(Player player)
-        {
-            _Card card = _drawPile.Pop();
-            SyncSending(player, card);
-
-            CheckBomb(card);
-        }
-
-        public void GiveBottomCard(Player player)
-        {
-            _Card card = _drawPile.PopBottom();
-            SyncSending(player, card);
-
-            CheckBomb(card);
-        }
-
-        public int CurrentPlayer
-        {
-            get
-            {
-                return _currentP;
-            }
-        }
-
-        public int Direction
-        {
-            get
-            {
-                return _direction;
-            }
-            set
-            {
-                if(value == 1 || value == -1)
-                {
-                    _direction = value;
-                }
-            }
-        }
-
-        public void ChageDirection()
-        {
-            Direction *= -1;
-            ResetTurn();
-        }
-
-        public void ReduceTurn(Player player)
-        {
-            player.Turn--;
-            _network.SendSingle(player.ClientSK, player.GetTurn);
-        }
-
-        /// <summary>
-        /// Reset alive player turn
-        /// </summary>
-        public void ResetTurn()
-        {
-            _playerGroup.ResetTurn();
-            _network.SendMulti(new Turn(1), _playerGroup);
-
-        }
-
-        private void SyncSending(Player player, _Card card)
-        {
-            _playerGroup.GivePlayerData(player.Position, card);
-            _network.SendSingle(player.ClientSK, card);
-        }
-
-        private void CheckBomb(_Card card)
-        {
-            if (card is ExplodingCard)
-            {
-                _currentTurn.DrawBomb = true;
-            }
-            else
-            {
-                _currentTurn.Stop();
-            }
-        }
-
-        public void DefuseCurrentTurn()
-        {
-            _currentTurn.BombDefuse = true;
-        }
-
-
-
         public void SendDeny(Player player)
         {
             _network.SendSingle(player.ClientSK, "Deny");
         }
 
-        public void ResetGame()
-        {
-            _Winner = null;
-            _start = false;
-            _playerGroup = new PlayerGroup();
-            _discardPile = new Deck();
-            _reqProc = new RequestProcessor(this);
-            _cardProc = new CardProcessor(this, _drawPile, _discardPile);
-            _direction = 1;
-        }
+        //private void SetupGame(int numofcard)
+        //{
+        //    _drawPile = new Deck(_playerGroup.NumOfPlayer, numofcard);
+
+        //    foreach (Player player in _playerGroup.PlayerList)
+        //    {
+        //        //each player start with 4 card and a defuse
+        //        Deck deck = new Deck();
+        //        deck.AddCard(_Card.CreateCard(CardType.DefuseCard));
+        //        for (int i = 0; i < 4; i++)
+        //        {
+        //            deck.AddCard(_Card.GetRandom());
+        //        }
+        //        player.Deck = deck;
+        //        _network.SendSingle(player.ClientSK, deck);
+        //    }
+        //}
+
+        //public player winner
+        //{
+        //    get
+        //    {
+        //        return _winner;
+        //    }
+
+        //    set
+        //    {
+        //        _winner = value;
+        //    }
+        //}
 
 
-        private void RegisterCards() // should this be here ??
-        {
-            _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
-            _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
-            _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
-            _Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
-            _Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
-        }
+        //private void StartGame()
+        //{
+        //    //try
+        //    //{
+        //    //    while (_game.Winner == null)
+        //    //    {
+        //    //        ResetTurn(); //exploded player will have 0 turn
+        //    //        for(int i = 0; i < _playerGroup.NumOfPlayer; i += Direction)
+        //    //        {
+        //    //            _currentP = i;
+        //    //            Player player =_playerGroup.GetPlayerAt(i);
+                        
+        //    //            while (player.Turn > 0)
+        //    //            {
+
+        //    //                _currentTurn = new ManageTurn(player, _game.DrawPile, _game.DiscardPile);
+
+        //    //                //throw new NotImplementedException();
+        //    //                //_network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
+
+        //    //                while (!_currentTurn.EndTurn)
+        //    //                {
+        //    //                    /// AFK detect
+        //    //                    if(_playerGroup.NumOfPlayer == 0)/// if everyone afk
+        //    //                    {
+        //    //                        ResetGame();
+        //    //                        return;
+        //    //                    }
+        //    //                    if (_playerGroup.NumOfPlayer == 1) 
+        //    //                    {
+        //    //                        player = _playerGroup.GetPlayerAt(0);
+        //    //                        _game.Winner = player;
+        //    //                        break;
+        //    //                    }
+        //    //                    else if (!_playerGroup.HasPlayer(player))
+        //    //                    {
+        //    //                        if (i == _playerGroup.NumOfPlayer)
+        //    //                        {
+        //    //                            break;
+        //    //                        }
+        //    //                        player = _playerGroup.PlayerList[i];
+        //    //                        //throw new NotImplementedException();
+        //    //                        //_network.SendMulti(new CurrentTurn(_currentP), _playerGroup);
+        //    //                    }
+        //    //                    ///
+
+        //    //                    _currentTurn.Busy();
+        //    //                }
+
+        //    //                ReduceTurn(player);
+
+        //    //                if(_playerGroup.NumOfSurvival == 1)
+        //    //                {
+        //    //                    _game.Winner = _playerGroup.GetWinner();
+        //    //                    break;
+        //    //                }
+        //    //            }
+
+        //    //            if(_game.Winner != null)
+        //    //            {
+        //    //                break;
+        //    //            }
+        //    //        }
+
+        //    //    }
+
+        //    //    _network.SendSingle(_game.Winner.ClientSK, "you winnnnn!!!!!!!");
+        //    //    ResetGame();
+        //    //}
+        //    //catch (Exception e)
+        //    //{
+        //    //    Console.WriteLine(e);
+        //    //    Console.WriteLine("disconnect error");
+        //    //    ResetGame();
+        //    //}
+
+        //}
+
+
+        //public void GiveTopCard(Player player)
+        //{
+        //    _Card card = _game.DrawPile.Pop();
+        //    SyncSending(player, card);
+
+        //    CheckBomb(card);
+        //}
+
+        //public void GiveBottomCard(Player player)
+        //{
+        //    _Card card = _game.DrawPile.PopBottom();
+        //    SyncSending(player, card);
+
+        //    CheckBomb(card);
+        //}
+
+        //public int CurrentPlayer
+        //{
+        //    get
+        //    {
+        //        return _currentP;
+        //    }
+        //}
+
+
+        //public void ChageDirection()
+        //{
+        //    Direction *= -1;
+        //    ResetTurn();
+        //}
+
+        //public void ReduceTurn(Player player)
+        //{
+        //    player.Turn--;
+        //    //throw new NotImplementedException();
+        //    //_network.SendSingle(player.ClientSK, player.GetTurn);
+        //}
+
+        /// <summary>
+        /// Reset alive player turn
+        /// </summary>
+        //public void ResetTurn()
+        //{
+        //    _playerGroup.ResetTurn();
+        //    //throw new NotImplementedException();
+        //    //_network.SendMulti(new Turn(1), _playerGroup);
+        //}
+
+
+
+        //private void CheckBomb(_Card card)
+        //{
+        //    if (card is ExplodingCard)
+        //    {
+        //        _currentTurn.DrawBomb = true;
+        //    }
+        //    else
+        //    {
+        //        _currentTurn.Stop();
+        //    }
+        //}
+
+        //public void DefuseCurrentTurn()
+        //{
+        //    _currentTurn.BombDefuse = true;
+        //}
+
+
+        //public void ResetGame()
+        //{
+        //    //_Winner = null;
+        //    //_start = false;
+        //    //_playerGroup = new PlayerGroup();
+        //    //_discardPile = new Deck();
+        //    //_cardProc = new CardProcessor(this, _drawPile, _discardPile);
+        //    //_direction = 1;
+        //}
+
+
+        //private void RegisterCards() // should this be here ??
+        //{
+        //    _Card.RegisterCard(CardType.ExplodingCard, typeof(ExplodingCard));
+        //    _Card.RegisterCard(CardType.DefuseCard, typeof(DefuseCard));
+        //    _Card.RegisterCard(CardType.SkipCard, typeof(SkipCard));
+        //    _Card.RegisterCard(CardType.CattermelonCard, typeof(CattermelonCard));
+        //    _Card.RegisterCard(CardType.NopeCard, typeof(NopeCard));
+        //}
     }
 }
