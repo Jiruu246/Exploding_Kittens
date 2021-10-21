@@ -20,9 +20,7 @@ namespace Client
                 return _instance;
             }
         }
-        /// <summary>
-        /// get instance from child class ??
-        /// </summary>
+
         protected void Init()
         {
             _instance = this;
