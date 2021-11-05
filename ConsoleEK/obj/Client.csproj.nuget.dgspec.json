@@ -66,12 +66,7 @@
       "restore": {
         "projectUniqueName": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj",
         "projectName": "ExplodingKittenLib",
-        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj",
-        "frameworks": {
-          "net472": {
-            "projectReferences": {}
-          }
-        }
+        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj"
       },
       "frameworks": {
         "net472": {}
