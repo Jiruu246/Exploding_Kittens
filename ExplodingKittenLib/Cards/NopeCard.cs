@@ -9,13 +9,16 @@ namespace ExplodingKittenLib.Cards
     [Serializable]
     public class NopeCard : _Card, IActivatable
     {
-        public NopeCard(): base() { }
+        public List<Actions> Action { get; } 
+        public NopeCard(): base()
+        {
+            Action = new List<Actions>();
+            Action.Add(Actions.Nope);
+        }
 
         public List<Actions> Activate()
         {
-            List<Actions> actions = new List<Actions>();
-            actions.Add(Actions.Nope);
-            return actions;
+            return Action;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Client
             switch (requests)
             {
                 case Requests.YourTurn:
-                    Console.WriteLine("Your turn!!!");
+                    //
                     break;
                 case Requests.Start:
                     ClientGame.GetInstance.GameStart = true;

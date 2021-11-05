@@ -2,16 +2,16 @@
 using System.Threading;
 using ExplodingKittenLib;
 using ExplodingKittenLib.Cards;
+using ExplodingKittenLib.Activities;
 
 namespace Client
 {
-    class ClientDataProcess //facade pattern
+    class ClientDataProcess
     {
-        private ClientNetwork _network = ClientNetwork.GetInstance;
         private Player _player;
         private Deck _deck;
         private ClientRequestProcess _reqProc;
-        private int _currentTurn;
+        //private int _currentTurn;
 
         public ClientDataProcess(Player player)
         {
@@ -37,49 +37,44 @@ namespace Client
             {
                 Console.WriteLine("this is a card wwooooo");
                 GetCard((_Card)data);
+                if(data is ExplodingCard)
+                {
+                    ClientGame.GetInstance.GetBomb = true;
+                }
             }
             else if (data is Requests)
             {
                 _reqProc.Execute((Requests)data);
             }
-        }
-
-        public bool Connect()
-        {
-            bool conn = _network.Connect();
-
-            _player.ClientSK = _network.Socket; // save the socket to the player object
-
-            Thread listen = new Thread(Receive); // when connect establish a listen thread immidiately
-            listen.IsBackground = true;
-            listen.Start();
-
-            return conn;
-        }
-
-        public void Close()
-        {
-            _network.Close();
-        }
-
-        public void Send(object data)
-        {
-            _network.Send(data);
-        }
-
-        public void Receive()
-        {
-            try
+            else if(data is Activity)
             {
-                while (true)
+                if(data is ADraw)
                 {
-                    Execute(_network.GetData(_player.ClientSK));
+                    ADraw act = data as ADraw;
+                    ClientGame.GetInstance.NumOfDrawCard = act.NumOfDrawCard;
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                _network.Close();
+                else if(data is APlayCard)
+                {
+                    APlayCard act = data as APlayCard;
+                    ClientGame.GetInstance.DCard = act.Card;
+                    //maybe dont need this
+                    if(act.Card is DefuseCard)
+                    {
+                        PlayerInfo.GetInstance.PlayerDefuseBoom(act.Player);
+                    }
+                }
+                else if(data is AGetBoom)
+                {
+                    AGetBoom act = data as AGetBoom;
+                    PlayerInfo.GetInstance.PlayerGetBoom(act.Player);
+                }
+                else if(data is AEndMatch)
+                {
+                    AEndMatch act = data as AEndMatch;
+                    ClientGame.GetInstance.Winner = act.Player;
+                }
+                
+                ClientGame.GetInstance.Activity = (Activity)data;
             }
         }
 
@@ -102,23 +97,15 @@ namespace Client
             _deck.AddCard(card);
         }
 
-        public int CurrentTurn
-        {
-            get
-            {
-                return _currentTurn;
-            }
-            set
-            {
-                _currentTurn = value;
-            }
-        }
-
         private void Extract(MatchInfo info)
         {
-            //info.GetMyData(_player);
-            _player.Position = info.MyPos;
+            _player.Position = (info.MyPos >= 0)? info.MyPos : _player.Position;
+            _player.Turn = (info.pTurn[_player.Position] >= 0)? info.pTurn[_player.Position] : _player.Turn;
+            ClientGame.GetInstance.CurrentTurn = (info.CurrentTurn >= 0)? info.CurrentTurn : ClientGame.GetInstance.CurrentTurn;
+            ClientGame.GetInstance.NumOfDrawCard = (info.NumOfDrawCard >= 0) ? info.NumOfDrawCard : ClientGame.GetInstance.NumOfDrawCard;
             PlayerInfo.GetInstance.UpdatePlayer(info);
+            _player.Explode = PlayerInfo.GetInstance.Players[_player.Position].Explode;
+            ClientGame.GetInstance.GetBomb = false;
         }
     }
 }

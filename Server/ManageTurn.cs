@@ -8,10 +8,10 @@ namespace Server
 {
     class ManageTurn
     {
-        private bool _endTurn;
+        public bool EndTurn;
+        private bool _emergency;
         private bool _drawBomb;
         private bool _bombDefuse;
-        //private ServerNetwork _network = ServerNetwork.GetInstance;
         private Player _player;
 
 
@@ -21,52 +21,55 @@ namespace Server
         private Deck _drawPile;
         private Deck _discardPile;
 
-        /// <summary>
-        /// ???
-        /// </summary>
-        private int _bombPosition;
+        public bool PositionSend;
 
 
         public ManageTurn(Player player, Deck drawPile, Deck discardPile)
         {
-            _bombPosition = -1;
+            PositionSend = false;
             _player = player;
             _drawPile = drawPile;
             _discardPile = discardPile;
             EndTurn = false;
+            _emergency = false;
             _drawBomb = false;
             _bombDefuse = false;
         }
 
         public void Busy()
         {
-            if (_player.Turn == 0)
+            while (!EndTurn)
             {
-                EndTurn = true;
-            }
-            if (DrawBomb)
-            {
-                _bombDefuse = false;
-                bool bombremoval = BombCountDown();
-                if (bombremoval)
+                if (_player.Turn == 0)
                 {
-                    while (true)
+                    EndTurn = true;
+                }
+                if (DrawBomb)
+                {
+                    _bombDefuse = false;
+                    bool bombremoval = BombCountDown();
+                    if (bombremoval)
                     {
-                        if(_bombPosition > -1)
+                        while (!_emergency)
                         {
-                            _drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.ExplodingCard));
-                            break;
+                            if(PositionSend)
+                            {
+                                //_drawPile.AddCardAt(_bombPosition, _Card.CreateCard(CardType.ExplodingCard));
+                                break;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    _player.Explode = true;
-                    _player.Turn = 0;
-                    _discardPile.Merge(_player.Deck);
-                }
+                    else
+                    {
+                        _player.Explode = true;
+                        _player.Turn = 0;
+                        _player.Deck.Pop();
+                        _discardPile.Merge(_player.Deck);
+                        _player.Deck = new Deck();
+                    }
 
-                EndTurn = true;
+                    EndTurn = true;
+                }
             }
         }
 
@@ -75,7 +78,11 @@ namespace Server
             EndTurn = true;
         }
 
-
+        public void EmergencyStop()
+        {
+            _emergency = true;
+            EndTurn = true;
+        }
 
         private bool BombCountDown()
         {
@@ -83,27 +90,13 @@ namespace Server
             {
                 Thread.Sleep(1000);
                 Console.WriteLine(i); //remove later
-                if (BombDefuse)
+                if (BombDefuse || _emergency)
                 {
-                    throw new NotImplementedException("Not implement defuse index");
                     return true;
                 }
             }
 
             return false;
-        }
-
-
-        public bool EndTurn
-        {
-            get
-            {
-                return _endTurn;
-            }
-            set
-            {
-                _endTurn = value;
-            }
         }
 
         public bool DrawBomb
@@ -129,20 +122,7 @@ namespace Server
                 _bombDefuse = value;
             }
         }
-        /// <summary>
-        /// ????
-        /// </summary>
-        public int BombPosition
-        {
-            get
-            {
-                return _bombPosition;
-            }
-            set
-            {
-                _bombPosition = value;
-            }
-        }
+
     }
 }
  

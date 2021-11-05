@@ -11,14 +11,20 @@ namespace ExplodingKittenLib.Cards
         DefuseCard,
         SkipCard,
         CattermelonCard,
-        NopeCard
+        NopeCard,
+        ShuffleCard,
+        DrawFromBottomCard,
+        ReverseCard
     }
 
     public enum Actions
     {
         Defuse,
         Skip,
-        Nope
+        Nope,
+        Shuffle,
+        DrawFromBottom,
+        Reverse
     }
 
     [Serializable]
@@ -40,15 +46,16 @@ namespace ExplodingKittenLib.Cards
             Selected = false;
         }
 
-        public CardType? GetCardname()
+        public string GetCardname()
         {
-            if (_faceup)
+            return _cardName.ToString();
+        }
+
+        public bool FaceUp
+        {
+            get
             {
-                return _cardName;
-            }
-            else
-            {
-                return null;
+                return _faceup;
             }
         }
 

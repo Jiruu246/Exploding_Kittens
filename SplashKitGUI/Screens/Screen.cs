@@ -21,8 +21,8 @@ namespace SplashKitGUI.Screens
             {
                 if(_screen == null)
                 {
-                    ///_screen = new Screen(new ScreenMenu());
-                    _screen = new Screen(new ScreenGame());
+                    _screen = new Screen(new ScreenMenu());
+                    //_screen = new Screen(new ScreenGame());
                 }
                 if (_state == null)
                 {

@@ -33,21 +33,6 @@ namespace Server
             return player;
         }
 
-        public void ResetTurn()
-        {
-            foreach(Player player in _players)
-            {
-                if (!player.Explode)
-                {
-                    player.Turn = 1;
-                }
-                else
-                {
-                    player.Turn = 0;
-                }
-            }
-        }
-
         public void RemovePlayerAt(int i)
         {
             _players.RemoveAt(i);

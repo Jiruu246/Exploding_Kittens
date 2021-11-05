@@ -33,7 +33,7 @@ namespace ExplodingKittenLib
         {
             for (int i = 0; i < numofp - 1; i++)
             {
-                _CardList.Add(_Card.CreateCard(CardType.ExplodingCard));
+                //_CardList.Add(_Card.CreateCard(CardType.ExplodingCard));
             }
             for (int i = 0; i < numofp; i++)
             {
@@ -59,6 +59,10 @@ namespace ExplodingKittenLib
             _CardList.Add(card);
         }
 
+        /// <summary>
+        /// Remove a card using its ID
+        /// </summary>
+        /// <param name="card"></param>
         public void RemoveCard(_Card card)
         {
             for(int i = 0; i < _CardList.Count; i++)

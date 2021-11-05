@@ -9,11 +9,18 @@ namespace ExplodingKittenLib.Cards
     [Serializable]
     public class SkipCard : _Card, IActivatable
     {
+        public List<Actions> Action { get; }
+
+        public SkipCard() : base()
+        {
+            Action = new List<Actions>();
+            Action.Add(Actions.Skip);
+        }
+
         public List<Actions> Activate()
         {
-            List<Actions> actions = new List<Actions>();
-            actions.Add(Actions.Skip);
-            return actions;
+            return Action;
         }
+
     }
 }

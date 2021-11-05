@@ -21,7 +21,7 @@ namespace ExplodingKittenLib
             _position = 0;
             _deck = new Deck();
             _roomMaster = false;
-            _turn = 1;
+            _turn = 0;
             _explode = false;
         }
 

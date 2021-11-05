@@ -14,6 +14,6 @@ namespace ExplodingKittenLib
         Draw,
         Explode,
         Defuse,
-        YouWin
+        Deny
     }
 }

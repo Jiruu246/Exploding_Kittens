@@ -66,7 +66,12 @@
       "restore": {
         "projectUniqueName": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj",
         "projectName": "ExplodingKittenLib",
-        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj"
+        "projectPath": "E:\\tempcode\\C#\\ConsoleEK\\ExplodingKittenLib\\ExplodingKittenLib.csproj",
+        "frameworks": {
+          "net472": {
+            "projectReferences": {}
+          }
+        }
       },
       "frameworks": {
         "net472": {}
@@ -86,7 +91,7 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net5.0"
+          "netcoreapp5.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},

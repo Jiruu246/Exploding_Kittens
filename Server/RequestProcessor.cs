@@ -34,7 +34,7 @@ namespace Server
                         _game.GiveTopCard(player);
                     }
                     else
-                        _gameMod.SendDeny(player);
+                        ServerNetwork.GetInstance.SendSingle(player.ClientSK, Requests.Deny);
                     break;
             }
         }

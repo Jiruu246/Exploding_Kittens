@@ -8,13 +8,13 @@ namespace Client
     public class PlayerInfo
     {
         private static PlayerInfo instance;
-        private List<Player> _players;
-
+        private List<OPlayer> _players;
+        
         public int MyPos { get; set; }
 
         private PlayerInfo()
         {
-            _players = new List<Player>();
+            _players = new List<OPlayer>();
         }
 
         public static PlayerInfo GetInstance
@@ -30,7 +30,7 @@ namespace Client
             }
         }
 
-        public List<Player> Players
+        public List<OPlayer> Players
         {
             get
             {
@@ -38,16 +38,35 @@ namespace Client
             }
         }
 
+
+        public void PlayerGetBoom(int player)
+        {
+            _players[player].GetBoom = true;
+        }
+
+        public void PlayerDefuseBoom(int player)
+        {
+            _players[player].GetBoom = false;
+        }
+
         public void UpdatePlayer(MatchInfo info)
         {
             MyPos = info.MyPos;
-            _players = new List<Player>();
-            foreach(int p in info.pPos)
+            _players = new List<OPlayer>();
+            for(int i = 0; i < info.pPos.Count; i++)
             {
-                Player player = new Player();
-                player.Position = p;
+                OPlayer player = new OPlayer();
+                player.Position = CheckData(player.Position, info.pPos[i]);
+                player.Turn = CheckData(player.Turn, info.pTurn[i]);
+                player.NumOfCard = CheckData(player.NumOfCard, info.pNumOfCard[i]);
+                player.Explode = info.pExplode[i];
                 _players.Add(player);
             }
+        }
+
+        private int CheckData(int target, int input)
+        {
+            return (input >= 0) ? input : target;
         }
     }
 }

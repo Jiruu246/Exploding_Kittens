@@ -1,20 +1,33 @@
 // BITMAP,name,filename
 
 //Background
-BITMAP,gamebackground,background/gamebg.png
+BITMAP,menu,background/menubg.png
 BITMAP,lobby,background/lobby.png
-BITMAP,menu,background/menubg.jpg
+BITMAP,gamebackground,background/gamebg.png
+BITMAP,endmatchbg,background/endmatchbg.png
 
 //Buttons
 BITMAP,startbttn,buttons/start.png
-BITMAP,okbttn,buttons/okbttn.png
+BITMAP,quitbttn,buttons/quit.png
 BITMAP,findmatch,buttons/findmatch.png
 BITMAP,startMatch,buttons/startMatch.png
 BITMAP,playCard,buttons/playCard.png
+BITMAP,drawbttn,buttons/draw.png
+BITMAP,indexbttn,buttons/indexbttn.png
+BITMAP,indexselect,buttons/indexselect.png
+BITMAP,okbttn,buttons/okbttn.png
 
 //Cards (size 260x280)
 BITMAP,backside,cards/backside.png
 BITMAP,DefuseCard,cards/DefuseCard.png
+BITMAP,SkipCard,cards/SkipCard.png
+BITMAP,CattermelonCard,cards/CattermelonCard.png
+BITMAP,NopeCard,cards/NopeCard.png
+BITMAP,ShuffleCard,cards/ShuffleCard.png
+BITMAP,ExplodingCard,cards/ExplodingCard.png
+BITMAP,DrawFromBottomCard,cards/DrawFromBottomCard.png
+BITMAP,ReverseCard,cards/ReverseCard.png
+
 
 //Avatar
 BITMAP,avatar1,avatars/avatar1.png
@@ -22,11 +35,16 @@ BITMAP,avatar2,avatars/avatar2.png
 BITMAP,avatar3,avatars/avatar3.png
 BITMAP,avatar4,avatars/avatar4.png
 BITMAP,avatar5,avatars/avatar5.png
+BITMAP,dead,avatars/dead.png
 
 //Other elements
 BITMAP,namePlaceholder,elements/namePlaceholder.png
 BITMAP,playerholder,elements/playerholder.png
 BITMAP,idvholder,elements/idvholder.png
+BITMAP,drawPile,elements/drawPile.png
+BITMAP,oppcard,elements/oppcard.png
+BITMAP,selected,elements/selected.png
+BITMAP,boom,elements/boom.png
 
 //FONT
-FONT,lobby_player_text,Minecraft.ttf,30
+FONT,main_font,Minecraft.ttf,30

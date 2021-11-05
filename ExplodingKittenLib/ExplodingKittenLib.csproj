@@ -41,12 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Activities\Activity.cs" />
+    <Compile Include="Activities\ADraw.cs" />
+    <Compile Include="Activities\AEndMatch.cs" />
+    <Compile Include="Activities\AGetBoom.cs" />
+    <Compile Include="Activities\APlayCard.cs" />
     <Compile Include="Cards\CattermelonCard.cs" />
     <Compile Include="Cards\DefuseCard.cs" />
+    <Compile Include="Cards\DrawFromBottomCard.cs" />
     <Compile Include="Cards\ExplodingCard.cs" />
     <Compile Include="Cards\NopeCard.cs" />
+    <Compile Include="Cards\ReverseCard.cs" />
+    <Compile Include="Cards\ShuffleCard.cs" />
     <Compile Include="Cards\SkipCard.cs" />
     <Compile Include="Cards\_Card.cs" />
+    <Compile Include="IHaveTarget.cs" />
     <Compile Include="MatchInfo.cs" />
     <Compile Include="Requests.cs" />
     <Compile Include="Deck.cs" />

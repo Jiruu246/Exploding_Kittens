@@ -9,6 +9,8 @@ namespace ExplodingKittenLib
     {
         public List<int> pPos;
 
+        public List<int> pTurn;
+
         public List<int> pNumOfCard;
 
         public List<bool> pExplode;
@@ -16,42 +18,25 @@ namespace ExplodingKittenLib
         public int MyPos;
         public int CurrentTurn { get; set; }
         public int NumOfDrawCard { get; set; }
-        public MatchInfo(List<Player> players, int playerPos) : this(players)
-        {
-            MyPos = playerPos;
-        }
-        public MatchInfo(List<Player> players)
+
+        public MatchInfo(List<Player> players, int playerPos, int curTurn = -1, int numOfDraw = -1)
         {
             pPos = new List<int>();
+            pTurn = new List<int>();
+            pNumOfCard = new List<int>();
+            pExplode = new List<bool>();
 
-            MyPos = -1;
-            CurrentTurn = -1;
-            NumOfDrawCard = -1;
+            MyPos = playerPos;
+            CurrentTurn = curTurn;
+            NumOfDrawCard = numOfDraw;
             foreach (Player player in players)
             {
                 pPos.Add(player.Position);
+                pTurn.Add(player.Turn);
+                pNumOfCard.Add(player.NumOfCard);
+                pExplode.Add(player.Explode);
             }
         }
 
-        public void UpdateTurn(int currentTurn, int playerTurn)
-        {
-            CurrentTurn = currentTurn;
-        }
-
-        public void UpdateNumOfCard(int numOfDrawCard)
-        {
-            NumOfDrawCard = numOfDrawCard;
-        }
-
-        /*public void GetMyData(Player player)
-        {
-            if(_currP > 0)
-            {
-                IObservable Iplayer = Players[_currP];
-                Console.WriteLine("found match");
-                player.Position = (Iplayer.Position > 0) ? Iplayer.Position : player.Position;
-                player.Turn = (Iplayer.Turn > 0) ? Iplayer.Turn : player.Turn;
-            }
-        }*/
     }
 }

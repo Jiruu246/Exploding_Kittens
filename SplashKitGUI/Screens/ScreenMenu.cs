@@ -22,18 +22,21 @@ namespace SplashKitGUI.Screens
         public void Draw()
         {
             SplashKit.DrawBitmap("menu", 0, 0);
-            SplashKit.DrawBitmap("startbttn", 650, 200);
+            SplashKit.DrawBitmap("startbttn", 750, 600);
+            SplashKit.DrawBitmap("quitbttn", 750, 750);
         }
 
         public void ButtonDown()
         {
             if (SplashKit.MouseClicked(MouseButton.LeftButton))
             {
-                if(Screen.GetInstance.MouseInZone(650, 200, 299, 136))
+                if(Screen.GetInstance.MouseInZone(750, 600, 193, 94))
                 {
-                    //connect after press start
-                    //ClientGame.GetInstance.Connect();
                     Screen.GetInstance.ChangeState(new ScreenLobby());
+                }
+                else if(Screen.GetInstance.MouseInZone(750, 750, 193, 94))
+                {
+                    SplashKit.CloseAllWindows();
                 }
             }
         }
